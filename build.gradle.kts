@@ -8,6 +8,7 @@ plugins {
     kotlin("jvm") version "1.8.10"
     kotlin("plugin.spring") version "1.8.10"
     kotlin("plugin.jpa") version "1.8.10"
+    jacoco
 }
 
 group = "com.widehouse"
@@ -23,12 +24,15 @@ repositories {
 val snippetsDir by extra { file("build/generated-snippets") }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("com.h2database:h2")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 }
@@ -48,7 +52,12 @@ tasks.test {
     outputs.dir(snippetsDir)
 }
 
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+}
+
 tasks.asciidoctor {
     inputs.dir(snippetsDir)
     dependsOn(tasks.test)
 }
+
