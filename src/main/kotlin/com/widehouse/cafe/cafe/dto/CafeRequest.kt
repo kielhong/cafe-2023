@@ -7,12 +7,10 @@ data class CafeRequest(
     val name: String,
     val description: String
 ) {
-    companion object {
-        fun toModel(cafeRequest: CafeRequest) =
-            Cafe(
-                cafeRequest.url,
-                cafeRequest.name,
-                cafeRequest.description
-            )
-    }
+    fun toModel() =
+        Cafe(
+            this.url,
+            this.name,
+            this.description
+        )
 }
