@@ -27,12 +27,19 @@ class CafeService(
     @Transactional
     fun update(request: CafeRequest): Mono<CafeResponse> {
         return cafeRepository.findByUrl(request.url)
-            .flatMap {
-                it.update(request)
-                cafeRepository.save(it)
-            }.map {
-                CafeResponse.from(it)
-            }
             .switchIfEmpty(Mono.error(DataNotFoundException("${request.url} not found")))
+            .map {
+                it.update(request)
+                it
+            }
+            .flatMap { cafeRepository.save(it) }
+            .map { CafeResponse.from(it) }
+    }
+
+    @Transactional
+    fun delete(url: String): Mono<Void> {
+        return cafeRepository.findByUrl(url)
+            .switchIfEmpty(Mono.error(DataNotFoundException("$url not found")))
+            .flatMap { cafeRepository.delete(it) }
     }
 }

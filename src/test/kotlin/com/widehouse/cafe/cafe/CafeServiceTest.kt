@@ -5,8 +5,10 @@ import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
@@ -19,13 +21,17 @@ class CafeServiceTest : DescribeSpec() {
     private lateinit var cafe: Cafe
 
     init {
-        MockKAnnotations.init(this)
-
         beforeEach {
+            MockKAnnotations.init(this)
+
             service = CafeService(cafeRepository)
 
             cafe = Cafe("test", "test", "desc")
             every { cafeRepository.findByUrl(any()) } returns Mono.just(cafe)
+        }
+
+        afterEach {
+            clearAllMocks()
         }
 
         describe("get a 카페") {
@@ -101,6 +107,33 @@ class CafeServiceTest : DescribeSpec() {
                     .`as`(StepVerifier::create)
                     .expectError(DataNotFoundException::class.java)
                     .verify()
+            }
+        }
+
+        describe("delete 카페") {
+            val url = "test"
+            it("카페 정보 삭제") {
+                // given
+                every { cafeRepository.delete(any()) } returns Mono.empty()
+                // when
+                val result = service.delete(url)
+                // then
+                result
+                    .`as`(StepVerifier::create)
+                    .verifyComplete()
+            }
+
+            it("없는 카페이면 DataNotFoundException") {
+                // given
+                every { cafeRepository.findByUrl(any()) } returns Mono.empty()
+                // when
+                val result = service.delete(url)
+                // then
+                result
+                    .`as`(StepVerifier::create)
+                    .expectError(DataNotFoundException::class.java)
+                    .verify()
+                verify(exactly = 0) { cafeRepository.delete(any()) }
             }
         }
     }

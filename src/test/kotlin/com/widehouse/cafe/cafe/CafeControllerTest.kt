@@ -22,6 +22,33 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
     private lateinit var cafeService: CafeService
 
     init {
+        describe("get /cafes/{url}") {
+            val url = "test"
+            val response = CafeResponse(url, "test", "desc")
+            every { cafeService.getCafe(any()) } returns Mono.just(response)
+
+            it("개별 카페를 반환, 200 OK") {
+                webClient.get()
+                    .uri("/cafes/{url}", url)
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody()
+                    .jsonPath("$.url").isEqualTo(response.url)
+                    .jsonPath("$.name").isEqualTo(response.name)
+                    .jsonPath("$.description").isEqualTo(response.description)
+            }
+
+            it("존재 하지 않는 카페, 404 Not Found") {
+                // given
+                every { cafeService.getCafe(any()) } returns Mono.error { DataNotFoundException("$url not found") }
+                // then
+                webClient.get()
+                    .uri("/cafes/{url}", url)
+                    .exchange()
+                    .expectStatus().isNotFound
+            }
+        }
+
         describe("post /cafes") {
             val response = CafeResponse("test", "test", "desc")
             every { cafeService.create(any()) } returns Mono.just(response)
@@ -73,28 +100,21 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
             }
         }
 
-        describe("get /cafes/{url}") {
-            val url = "test"
-            val response = CafeResponse(url, "test", "desc")
-            every { cafeService.getCafe(any()) } returns Mono.just(response)
+        describe("delete /cafes") {
+            it("존재하는 카페일 때, 카페를 삭제하고 200을 반환") {
+                every { cafeService.delete(any()) } returns Mono.empty()
 
-            it("개별 카페를 반환, 200 OK") {
-                webClient.get()
-                    .uri("/cafes/{url}", url)
+                webClient.delete()
+                    .uri("/cafes/{url}", "test")
                     .exchange()
                     .expectStatus().isOk
-                    .expectBody()
-                    .jsonPath("$.url").isEqualTo(response.url)
-                    .jsonPath("$.name").isEqualTo(response.name)
-                    .jsonPath("$.description").isEqualTo(response.description)
             }
 
-            it("존재 하지 않는 카페, 404 Not Found") {
-                // given
-                every { cafeService.getCafe(any()) } returns Mono.error { DataNotFoundException("$url not found") }
-                // then
-                webClient.get()
-                    .uri("/cafes/{url}", url)
+            it("존재하지 않는 카페 url 일때, 404 반환") {
+                every { cafeService.delete(any()) } returns Mono.error(DataNotFoundException(""))
+
+                webClient.delete()
+                    .uri("/cafes/{url}", "test")
                     .exchange()
                     .expectStatus().isNotFound
             }

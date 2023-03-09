@@ -2,6 +2,7 @@ package com.widehouse.cafe.cafe
 
 import com.widehouse.cafe.cafe.dto.CafeRequest
 import com.widehouse.cafe.cafe.dto.CafeResponse
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,5 +30,10 @@ class CafeController(
     @PutMapping
     fun update(@RequestBody request: CafeRequest): Mono<CafeResponse> {
         return cafeService.update(request)
+    }
+
+    @DeleteMapping("{url}")
+    fun delete(@PathVariable url: String): Mono<Void> {
+        return cafeService.delete(url)
     }
 }
