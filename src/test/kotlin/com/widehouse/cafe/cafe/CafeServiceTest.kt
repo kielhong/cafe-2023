@@ -15,20 +15,39 @@ class CafeServiceTest : StringSpec() {
     @MockK
     lateinit var cafeRepository: CafeRepository
 
+    lateinit var cafe: Cafe
+
     init {
         MockKAnnotations.init(this)
 
         beforeEach {
             service = CafeService(cafeRepository)
+
+            cafe = Cafe("test", "test", "desc")
         }
 
         "create 카페" {
             // given
-            val cafe = Cafe("test", "test", "desc")
-            every { cafeRepository.insert(ofType(Cafe::class)) } returns Mono.just(cafe)
+            every { cafeRepository.save(any()) } returns Mono.just(cafe)
             // when
             val request = CafeRequest("test", "test", "desc")
             val result = service.create(request)
+            // then
+            result
+                .`as`(StepVerifier::create)
+                .assertNext {
+                    it.url shouldBe cafe.url
+                    it.name shouldBe cafe.name
+                    it.description shouldBe cafe.description
+                }
+                .verifyComplete()
+        }
+
+        "get a 카페" {
+            // given
+            every { cafeRepository.findByUrl(any()) } returns Mono.just(cafe)
+            // when
+            val result = service.getCafe("test")
             // then
             result
                 .`as`(StepVerifier::create)

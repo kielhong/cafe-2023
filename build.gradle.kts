@@ -33,7 +33,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     runtimeOnly("com.h2database:h2")
-
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("io.projectreactor:reactor-test:3.5.3")
@@ -42,6 +41,8 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation("com.ninja-squad:springmockk:4.0.1")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.6.1")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:4.6.1")
 }
 
 tasks.withType<KotlinCompile> {

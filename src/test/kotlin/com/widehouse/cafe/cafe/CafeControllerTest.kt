@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.widehouse.cafe.cafe.dto.CafeRequest
 import com.widehouse.cafe.cafe.dto.CafeResponse
+import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
+import io.mockk.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
@@ -40,6 +42,35 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
                     .expectBody()
                     .jsonPath("$.url").isEqualTo(response.url)
                     .jsonPath("$.name").isEqualTo(response.name)
+
+                verify { cafeService.create(any()) }
+            }
+        }
+
+        describe("get /cafes/{url}") {
+            val url = "test"
+            val response = CafeResponse(url, "test", "desc")
+            every { cafeService.getCafe(any()) } returns Mono.just(response)
+
+            it("개별 카페를 반환, 200 OK") {
+                webClient.get()
+                    .uri("/cafes/{url}", url)
+                    .exchange()
+                    .expectStatus().isOk
+                    .expectBody()
+                    .jsonPath("$.url").isEqualTo(response.url)
+                    .jsonPath("$.name").isEqualTo(response.name)
+                    .jsonPath("$.description").isEqualTo(response.description)
+            }
+
+            it("존재 하지 않는 카페, 404 Not Found") {
+                // given
+                every { cafeService.getCafe(any()) } returns Mono.error { DataNotFoundException("$url not found") }
+                // then
+                webClient.get()
+                    .uri("/cafes/{url}", url)
+                    .exchange()
+                    .expectStatus().isNotFound
             }
         }
     }
