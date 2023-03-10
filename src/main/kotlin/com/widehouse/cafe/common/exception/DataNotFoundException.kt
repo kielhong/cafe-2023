@@ -6,5 +6,4 @@ import org.springframework.web.bind.annotation.ResponseStatus
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class DataNotFoundException : RuntimeException {
     constructor(message: String) : super(message)
-    constructor(ex: Exception) : super(ex)
 }

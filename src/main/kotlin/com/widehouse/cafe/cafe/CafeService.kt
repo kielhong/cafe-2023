@@ -2,6 +2,9 @@ package com.widehouse.cafe.cafe
 
 import com.widehouse.cafe.cafe.dto.CafeRequest
 import com.widehouse.cafe.cafe.dto.CafeResponse
+import com.widehouse.cafe.cafe.model.Cafe
+import com.widehouse.cafe.cafe.repository.CafeRepository
+import com.widehouse.cafe.cafe.repository.CategoryRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -11,7 +14,8 @@ import reactor.core.publisher.Mono
 @Service
 @Transactional
 class CafeService(
-    private val cafeRepository: CafeRepository
+    private val cafeRepository: CafeRepository,
+    private val categoryRepository: CategoryRepository
 ) {
     @Transactional(readOnly = true)
     fun getCafe(url: String): Mono<CafeResponse> {
@@ -27,18 +31,20 @@ class CafeService(
     }
 
     fun create(request: CafeRequest): Mono<CafeResponse> {
-        return cafeRepository.save(request.toModel())
+        return categoryRepository.findById(request.categoryId)
+            .map { Cafe(request.url, request.name, request.description, it) }
+            .flatMap { cafeRepository.save(it) }
             .map { CafeResponse.from(it) }
     }
 
     fun update(request: CafeRequest): Mono<CafeResponse> {
         return cafeRepository.findByUrl(request.url)
             .switchIfEmpty(Mono.error(DataNotFoundException("${request.url} not found")))
-            .map {
-                it.update(request)
-                it
+            .flatMap {
+                val category = categoryRepository.findById(request.categoryId).block()!!
+                it.update(request.name, request.description, category)
+                cafeRepository.save(it)
             }
-            .flatMap { cafeRepository.save(it) }
             .map { CafeResponse.from(it) }
     }
 
