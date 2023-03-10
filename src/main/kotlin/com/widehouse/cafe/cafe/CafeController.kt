@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @RestController
@@ -20,6 +22,11 @@ class CafeController(
     @GetMapping("{url}")
     fun getCafe(@PathVariable url: String): Mono<CafeResponse> {
         return cafeService.getCafe(url)
+    }
+
+    @GetMapping(params = ["categoryId"])
+    fun getCafesByCategoryId(@RequestParam categoryId: Long): Flux<CafeResponse> {
+        return cafeService.getCafesByCategoryId(categoryId)
     }
 
     @PostMapping
