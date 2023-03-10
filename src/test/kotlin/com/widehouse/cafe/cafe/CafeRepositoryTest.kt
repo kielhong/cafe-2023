@@ -15,7 +15,7 @@ class CafeRepositoryTest(
         "findByUrl" {
             // given
             val url = "test"
-            mongoTemplate.insert(Cafe(url, "test", "test"), "cafe").block()
+            mongoTemplate.insert(Cafe(url, "test", "test", 1L), "cafe").block()
             // when
             val result = cafeRepository.findByUrl(url)
             // then
@@ -24,6 +24,19 @@ class CafeRepositoryTest(
                 .assertNext {
                     it.url shouldBe url
                 }
+                .verifyComplete()
+        }
+
+        "findByCategoryId" {
+            // given
+            val categoryId = 1L
+            (1..5).map { mongoTemplate.insert(Cafe("test${it}", "test${it}", "test", categoryId), "cafe").block() }
+            // when
+            val result = cafeRepository.findByCategoryId(categoryId)
+            // then
+            result
+                .`as`(StepVerifier::create)
+                .thenConsumeWhile { it.categoryId == categoryId }
                 .verifyComplete()
         }
     }

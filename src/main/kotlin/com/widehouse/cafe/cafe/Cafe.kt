@@ -9,10 +9,12 @@ class Cafe(
     @Id
     val url: String,
     var name: String,
-    var description: String
+    var description: String,
+    var categoryId: Long
 ) {
     fun update(request: CafeRequest) {
         name = request.name
         description = request.description
+        categoryId = request.categoryId
     }
 }

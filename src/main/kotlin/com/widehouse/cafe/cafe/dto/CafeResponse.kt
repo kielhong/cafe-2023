@@ -5,14 +5,16 @@ import com.widehouse.cafe.cafe.Cafe
 class CafeResponse(
     val url: String,
     val name: String,
-    val description: String
+    val description: String,
+    val categoryId: Long
 ) {
     companion object {
         fun from(cafe: Cafe) =
             CafeResponse(
                 cafe.url,
                 cafe.name,
-                cafe.description
+                cafe.description,
+                cafe.categoryId
             )
     }
 }

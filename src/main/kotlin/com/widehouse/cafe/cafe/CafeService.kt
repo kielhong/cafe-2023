@@ -5,9 +5,11 @@ import com.widehouse.cafe.cafe.dto.CafeResponse
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
+@Transactional
 class CafeService(
     private val cafeRepository: CafeRepository
 ) {
@@ -18,13 +20,17 @@ class CafeService(
             .switchIfEmpty(Mono.error(DataNotFoundException("$url not found")))
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    fun getCafesByCategoryId(categoryId: Long): Flux<CafeResponse> {
+        return cafeRepository.findByCategoryId(categoryId)
+            .map { CafeResponse.from(it) }
+    }
+
     fun create(request: CafeRequest): Mono<CafeResponse> {
         return cafeRepository.save(request.toModel())
             .map { CafeResponse.from(it) }
     }
 
-    @Transactional
     fun update(request: CafeRequest): Mono<CafeResponse> {
         return cafeRepository.findByUrl(request.url)
             .switchIfEmpty(Mono.error(DataNotFoundException("${request.url} not found")))
@@ -36,7 +42,6 @@ class CafeService(
             .map { CafeResponse.from(it) }
     }
 
-    @Transactional
     fun delete(url: String): Mono<Void> {
         return cafeRepository.findByUrl(url)
             .switchIfEmpty(Mono.error(DataNotFoundException("$url not found")))
