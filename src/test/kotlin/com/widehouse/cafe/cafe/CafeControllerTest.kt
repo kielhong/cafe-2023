@@ -1,8 +1,8 @@
 package com.widehouse.cafe.cafe
 
 import com.ninjasquad.springmockk.MockkBean
-import com.widehouse.cafe.cafe.dto.CafeRequest
-import com.widehouse.cafe.cafe.dto.CafeResponse
+import com.widehouse.cafe.cafe.dto.CafeRequestFixture
+import com.widehouse.cafe.cafe.dto.CafeResponseFixture
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -25,7 +25,7 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
     init {
         describe("get /cafes/{url}") {
             val url = "test"
-            val response = CafeResponse(url, "test", "desc", 1L)
+            val response = CafeResponseFixture.create()
             every { cafeService.getCafe(any()) } returns Mono.just(response)
 
             it("개별 카페를 반환, 200 OK") {
@@ -52,7 +52,7 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
 
         describe("get /cafes by categoryId") {
             val categoryId = 1L
-            val list = (1..2).map { CafeResponse("test$it", "test$it", "desc$it", 1L) }
+            val list = (1..2).map { CafeResponseFixture.from(it) }
             every { cafeService.getCafesByCategoryId(any()) } returns Flux.fromIterable(list)
 
             it("개별 카페를 반환, 200 OK") {
@@ -66,10 +66,10 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
         }
 
         describe("post /cafes") {
-            val response = CafeResponse("test", "test", "desc", 1L)
+            val response = CafeResponseFixture.create()
             every { cafeService.create(any()) } returns Mono.just(response)
 
-            val request = CafeRequest("test", "test", "desc", 1L)
+            val request = CafeRequestFixture.create()
 
             it("카페를 생성하고 200을 반환") {
                 webClient.post()
@@ -88,10 +88,10 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
 
         describe("put /cafes") {
             it("존재하는 카페일 때, 카페를 수정하고 200을 반환") {
-                val response = CafeResponse("test", "test", "desc", 1L)
+                val response = CafeResponseFixture.create()
                 every { cafeService.update(any()) } returns Mono.just(response)
 
-                val request = CafeRequest("test", "test2", "desc2", 1L)
+                val request = CafeRequestFixture.create()
                 webClient.put()
                     .uri("/cafes")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +106,7 @@ class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec
             it("존재하지 않는 카페 url 일때, 404 반환") {
                 every { cafeService.update(any()) } returns Mono.error(DataNotFoundException(""))
 
-                val request = CafeRequest("test", "test2", "desc2", 1L)
+                val request = CafeRequestFixture.create()
                 webClient.put()
                     .uri("/cafes")
                     .contentType(MediaType.APPLICATION_JSON)

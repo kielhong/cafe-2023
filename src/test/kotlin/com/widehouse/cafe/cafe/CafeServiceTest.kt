@@ -1,7 +1,6 @@
 package com.widehouse.cafe.cafe
 
-import com.widehouse.cafe.cafe.dto.CafeRequest
-import com.widehouse.cafe.cafe.dto.CafeResponse
+import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -21,14 +20,14 @@ class CafeServiceTest : DescribeSpec() {
     private lateinit var cafeRepository: CafeRepository
 
     init {
+        MockKAnnotations.init(this)
+
         lateinit var cafe: Cafe
 
         beforeEach {
-            MockKAnnotations.init(this)
-
             service = CafeService(cafeRepository)
 
-            cafe = Cafe("test", "test", "desc", 1L)
+            cafe = CafeFixture.create()
             every { cafeRepository.findByUrl(any()) } returns Mono.just(cafe)
         }
 
@@ -65,7 +64,7 @@ class CafeServiceTest : DescribeSpec() {
 
         describe("get 카페 by 카테고리Id") {
             val categoryId = 1L
-            val list = (1..2).map { Cafe("test${it}", "test${it}", "desc${it}", categoryId) }
+            val list = (1..2).map { CafeFixture.from(it, categoryId) }
 
             it("카테고리별 카페를 반환") {
                 every { cafeRepository.findByCategoryId(any()) } returns Flux.fromIterable(list)
@@ -78,25 +77,27 @@ class CafeServiceTest : DescribeSpec() {
         }
 
         describe("create 카페") {
-            // given
-            every { cafeRepository.save(any()) } returns Mono.just(cafe)
-            // when
-            val request = CafeRequest("test", "test", "desc", 1L)
-            val result = service.create(request)
-            // then
-            result
-                .`as`(StepVerifier::create)
-                .assertNext {
-                    it.url shouldBe cafe.url
-                    it.name shouldBe cafe.name
-                    it.description shouldBe cafe.description
-                    it.categoryId shouldBe cafe.categoryId
-                }
-                .verifyComplete()
+            val request = CafeRequestFixture.create()
+            it("생성된 카페를 반환") {
+                // given
+                every { cafeRepository.save(any()) } returns Mono.just(request.toModel())
+                // when
+                val result = service.create(request)
+                // then
+                result
+                    .`as`(StepVerifier::create)
+                    .assertNext {
+                        it.url shouldBe request.url
+                        it.name shouldBe request.name
+                        it.description shouldBe request.description
+                        it.categoryId shouldBe request.categoryId
+                    }
+                    .verifyComplete()
+            }
         }
 
         describe("update 카페") {
-            val request = CafeRequest("test", "test2", "desc2", 1L)
+            val request = CafeRequestFixture.create()
             it("카페 정보 변경하고 변경된 카페 반환") {
                 // given
                 val updatedCafe = Cafe("test", request.name, request.description, request.categoryId)

@@ -14,15 +14,15 @@ class CafeRepositoryTest(
     init {
         "findByUrl" {
             // given
-            val url = "test"
-            mongoTemplate.insert(Cafe(url, "test", "test", 1L), "cafe").block()
+            val cafe = CafeFixture.create()
+            mongoTemplate.insert(cafe, "cafe").block()
             // when
-            val result = cafeRepository.findByUrl(url)
+            val result = cafeRepository.findByUrl(cafe.url)
             // then
             result
                 .`as`(StepVerifier::create)
                 .assertNext {
-                    it.url shouldBe url
+                    it.url shouldBe cafe.url
                 }
                 .verifyComplete()
         }
@@ -30,7 +30,7 @@ class CafeRepositoryTest(
         "findByCategoryId" {
             // given
             val categoryId = 1L
-            (1..5).map { mongoTemplate.insert(Cafe("test${it}", "test${it}", "test", categoryId), "cafe").block() }
+            (1..5).map { mongoTemplate.insert(CafeFixture.from(it, categoryId), "cafe").block() }
             // when
             val result = cafeRepository.findByCategoryId(categoryId)
             // then
