@@ -8,7 +8,7 @@ class Board(
     val id: Long,
     @Indexed
     val cafeUrl: String,
-    val name: String,
+    val name: String
 ) {
     companion object {
         @Transient

@@ -13,14 +13,14 @@ class SequenceService(
     private val mongoOperations: ReactiveMongoOperations
 ) {
     fun generateSequence(seqName: String): Mono<Long> {
-         return mongoOperations
-             .findAndModify(
+        return mongoOperations
+            .findAndModify(
                 Query.query(where("_id").`is`(seqName)),
                 Update().inc("seq", 1),
                 options().returnNew(true).upsert(true),
                 DatabaseSequence::class.java
-             )
-             .map { it.seq }
-             .switchIfEmpty(Mono.defer { Mono.just(1L) })
+            )
+            .map { it.seq }
+            .switchIfEmpty(Mono.defer { Mono.just(1L) })
     }
 }
