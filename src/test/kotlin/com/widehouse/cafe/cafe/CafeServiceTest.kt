@@ -4,8 +4,6 @@ import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture
 import com.widehouse.cafe.cafe.model.Category
-import com.widehouse.cafe.cafe.repository.CafeRepository
-import com.widehouse.cafe.cafe.repository.CategoryRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe

@@ -1,4 +1,4 @@
-package com.widehouse.cafe.board.repository
+package com.widehouse.cafe.board
 
 import com.widehouse.cafe.board.model.Board
 import io.kotest.core.spec.style.StringSpec

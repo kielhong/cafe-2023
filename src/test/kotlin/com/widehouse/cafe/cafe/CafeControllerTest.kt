@@ -8,15 +8,16 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@WebFluxTest(value = [CafeController::class])
-class CafeControllerTest(@Autowired val webClient: WebTestClient) : DescribeSpec() {
+@WebFluxTest(CafeController::class)
+class CafeControllerTest(
+    private val webClient: WebTestClient
+) : DescribeSpec() {
     override fun extensions() = listOf(SpringExtension)
 
     @MockkBean
