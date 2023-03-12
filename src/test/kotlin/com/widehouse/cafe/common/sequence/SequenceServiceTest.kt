@@ -14,11 +14,10 @@ class SequenceServiceTest(
     init {
         "generate auto generated id" {
             val result = mutableListOf<Long>()
-            repeat(10)
-                {
-                    val seq = sequenceService.generateSequence(Board.SEQUENCE_NAME).block()!!
-                    result.add(seq)
-                }
+            repeat(10) {
+                val seq = sequenceService.generateSequence(Board.SEQUENCE_NAME).block()!!
+                result.add(seq)
+            }
             // then
             result shouldContainExactly (1L..10L)
         }
