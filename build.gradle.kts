@@ -1,3 +1,10 @@
+import com.widehouse.cafe.Versions.embeddedMongoVersion
+import com.widehouse.cafe.Versions.kotestExtionSpringVersion
+import com.widehouse.cafe.Versions.kotestVersion
+import com.widehouse.cafe.Versions.kotlinCoroutineVersion
+import com.widehouse.cafe.Versions.mockkVersion
+import com.widehouse.cafe.Versions.projectReactorVersion
+import com.widehouse.cafe.Versions.springMockkVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -32,18 +39,22 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutineVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinCoroutineVersion")
 
     runtimeOnly("com.h2database:h2")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("io.projectreactor:reactor-test:3.5.3")
-    testImplementation("io.kotest:kotest-runner-junit5:5.5.5")
-    testImplementation("io.kotest:kotest-assertions-core:5.5.5")
-    testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.2")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("com.ninja-squad:springmockk:4.0.1")
-    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.6.1")
-    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:4.6.1")
+    testImplementation("io.projectreactor:reactor-test:$projectReactorVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutineVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestExtionSpringVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:$embeddedMongoVersion")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:$embeddedMongoVersion")
 }
 
 tasks.withType<KotlinCompile> {
