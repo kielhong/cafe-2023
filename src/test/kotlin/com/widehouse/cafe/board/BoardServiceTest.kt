@@ -6,9 +6,12 @@ import com.widehouse.cafe.common.sequence.SequenceService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import reactor.core.publisher.Mono
 
 class BoardServiceTest : StringSpec() {
@@ -19,6 +22,8 @@ class BoardServiceTest : StringSpec() {
 
     @MockK
     private lateinit var sequenceService: SequenceService
+
+    val cafeUrl = "test"
 
     init {
         coroutineTestScope = true
@@ -33,7 +38,6 @@ class BoardServiceTest : StringSpec() {
 
         "create Board of Cafe" {
             // given
-            val cafeUrl = "test"
             val request = BoardRequestFixture.create()
             coEvery { boardRepository.save(any()) } returnsArgument 0
             // when
@@ -41,6 +45,16 @@ class BoardServiceTest : StringSpec() {
             // then
             result.cafeUrl shouldBe cafeUrl
             result.name shouldBe request.name
+        }
+
+        "delete Board" {
+            // given
+            val boardId = 1L
+            coEvery { boardRepository.deleteById(any()) } just Runs
+            // when
+            service.delete(cafeUrl, boardId)
+            // then
+            coVerify { boardRepository.deleteById(boardId) }
         }
     }
 }

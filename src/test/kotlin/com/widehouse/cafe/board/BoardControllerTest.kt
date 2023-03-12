@@ -5,8 +5,10 @@ import com.widehouse.cafe.board.dto.BoardRequestFixture
 import com.widehouse.cafe.board.dto.BoardResponseFixture
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -41,6 +43,18 @@ class BoardControllerTest(
                 .jsonPath("$.name").isEqualTo("board")
 
             coVerify { boardService.create(cafeUrl, any()) }
+        }
+
+        "DELETE /cafes/{cafeUrl}/boards/{id}" {
+            // given
+            val cafeUrl = "test"
+            val boardId = 1L
+            coEvery { boardService.delete(any(), any()) } just Runs
+
+            webClient.delete()
+                .uri("/cafes/{cafeUrl}/boards/{id}", cafeUrl, boardId)
+                .exchange()
+                .expectStatus().isOk
         }
     }
 }

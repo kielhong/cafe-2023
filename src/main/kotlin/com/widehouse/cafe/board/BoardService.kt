@@ -19,4 +19,9 @@ class BoardService(
 
         return BoardResponse.from(board)
     }
+
+    @Transactional
+    suspend fun delete(cafeUrl: String, boardId: Long) {
+        boardRepository.deleteById(boardId)
+    }
 }
