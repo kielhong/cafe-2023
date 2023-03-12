@@ -12,6 +12,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.count
 import reactor.core.publisher.Mono
 
 class BoardServiceTest : StringSpec() {
@@ -23,10 +25,10 @@ class BoardServiceTest : StringSpec() {
     @MockK
     private lateinit var sequenceService: SequenceService
 
-    val cafeUrl = "test"
-
     init {
         coroutineTestScope = true
+
+        val cafeUrl = "test"
 
         beforeEach {
             MockKAnnotations.init(this)
@@ -34,6 +36,15 @@ class BoardServiceTest : StringSpec() {
             service = BoardService(boardRepository, sequenceService)
 
             every { sequenceService.generateSequence(Board.SEQUENCE_NAME) } returns Mono.just(1L)
+        }
+
+        "get Boards by Cafe" {
+            val boards = (1L..2L).map { Board(it, cafeUrl, "board$it") }
+            coEvery { boardRepository.findByCafeUrl(cafeUrl) } returns boards.asFlow()
+            // when
+            val result = service.getBoardsByCafe(cafeUrl)
+            // then
+            result.count() shouldBe 2
         }
 
         "create Board of Cafe" {

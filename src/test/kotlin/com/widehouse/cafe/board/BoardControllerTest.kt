@@ -5,10 +5,12 @@ import com.widehouse.cafe.board.dto.BoardRequestFixture
 import com.widehouse.cafe.board.dto.BoardResponseFixture
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
+import kotlinx.coroutines.flow.asFlow
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -25,6 +27,20 @@ class BoardControllerTest(
     init {
         coroutineTestScope = true
 
+        "GET /cafes/{cafeUrl}/boards" {
+            // given
+            val cafeUrl = "test"
+            val responses = (1L..2L).map { BoardResponseFixture.create() }
+            coEvery { boardService.getBoardsByCafe(any()) } returns responses.asFlow()
+            // when
+            webClient.get()
+                .uri("/cafes/{cafeUrl}/boards", cafeUrl)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.size()").isEqualTo(2)
+        }
+
         "POST /cafes/{cafeUrl}/boards" {
             // given
             val cafeUrl = "test"
@@ -40,9 +56,14 @@ class BoardControllerTest(
                 .expectStatus().isOk
                 .expectBody()
                 .jsonPath("$.cafeUrl").isEqualTo(cafeUrl)
-                .jsonPath("$.name").isEqualTo("board")
+                .jsonPath("$.name").isEqualTo(response.name)
 
-            coVerify { boardService.create(cafeUrl, any()) }
+            coVerify {
+                boardService.create(
+                    cafeUrl,
+                    withArg { it.name shouldBe request.name }
+                )
+            }
         }
 
         "DELETE /cafes/{cafeUrl}/boards/{id}" {

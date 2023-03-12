@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface BoardRepository : CoroutineCrudRepository<Board, Long> {
-    suspend fun findByCafeUrl(cafeUrl: String): Flow<Board>
+    fun findByCafeUrl(cafeUrl: String): Flow<Board>
 }
