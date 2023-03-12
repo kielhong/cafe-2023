@@ -13,10 +13,14 @@ class SequenceServiceTest(
 ) : StringSpec() {
     init {
         "generate auto generated id" {
-            val list = (1..10)
-                .map { sequenceService.generateSequence(Board.SEQUENCE_NAME).block()!! }
+            val result = mutableListOf<Long>()
+            repeat(10)
+                {
+                    val seq = sequenceService.generateSequence(Board.SEQUENCE_NAME).block()!!
+                    result.add(seq)
+                }
             // then
-            list shouldContainExactly (1L..10L)
+            result shouldContainExactly (1L..10L)
         }
     }
 }
