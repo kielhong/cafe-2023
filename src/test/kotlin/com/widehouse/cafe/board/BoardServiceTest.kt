@@ -2,7 +2,6 @@ package com.widehouse.cafe.board
 
 import com.widehouse.cafe.board.dto.BoardRequestFixture
 import com.widehouse.cafe.board.model.Board
-import com.widehouse.cafe.board.repository.BoardRepository
 import com.widehouse.cafe.common.sequence.SequenceService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

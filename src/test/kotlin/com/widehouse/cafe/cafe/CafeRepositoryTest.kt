@@ -1,4 +1,4 @@
-package com.widehouse.cafe.cafe.repository
+package com.widehouse.cafe.cafe
 
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture

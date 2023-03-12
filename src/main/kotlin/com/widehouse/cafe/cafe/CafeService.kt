@@ -3,8 +3,6 @@ package com.widehouse.cafe.cafe
 import com.widehouse.cafe.cafe.dto.CafeRequest
 import com.widehouse.cafe.cafe.dto.CafeResponse
 import com.widehouse.cafe.cafe.model.Cafe
-import com.widehouse.cafe.cafe.repository.CafeRepository
-import com.widehouse.cafe.cafe.repository.CategoryRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

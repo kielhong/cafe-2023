@@ -3,7 +3,6 @@ package com.widehouse.cafe.board
 import com.widehouse.cafe.board.dto.BoardRequest
 import com.widehouse.cafe.board.dto.BoardResponse
 import com.widehouse.cafe.board.model.Board
-import com.widehouse.cafe.board.repository.BoardRepository
 import com.widehouse.cafe.common.sequence.SequenceService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
