@@ -2,7 +2,10 @@ package com.widehouse.cafe.article
 
 import com.widehouse.cafe.article.dto.ArticleRequestFixture
 import com.widehouse.cafe.article.model.Article
+import com.widehouse.cafe.board.BoardRepository
+import com.widehouse.cafe.board.model.BoardFixture
 import com.widehouse.cafe.common.sequence.SequenceService
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -17,6 +20,9 @@ class ArticleServiceTest : StringSpec() {
     private lateinit var articleRepository: ArticleRepository
 
     @MockK
+    private lateinit var boardRepository: BoardRepository
+
+    @MockK
     private lateinit var sequenceService: SequenceService
 
     init {
@@ -25,7 +31,9 @@ class ArticleServiceTest : StringSpec() {
         beforeEach {
             MockKAnnotations.init(this)
 
-            service = ArticleService(articleRepository, sequenceService)
+            service = ArticleService(articleRepository, boardRepository, sequenceService)
+
+            coEvery { boardRepository.findById(any()) } returns BoardFixture.create()
             coEvery { sequenceService.generateSequence(Article.SEQUENCE_NAME) } returns 1L
         }
 
@@ -42,6 +50,16 @@ class ArticleServiceTest : StringSpec() {
             result.subject shouldBe request.subject
             result.content shouldBe request.content
             result.createdAt.shouldNotBeNull()
+        }
+
+        "create Article - Invalid Board then IllegalArgumentException" {
+            // given
+            coEvery { boardRepository.findById(any()) } returns null
+            // then
+            val request = ArticleRequestFixture.create()
+            shouldThrow<IllegalArgumentException> {
+                service.create(request)
+            }
         }
     }
 }
