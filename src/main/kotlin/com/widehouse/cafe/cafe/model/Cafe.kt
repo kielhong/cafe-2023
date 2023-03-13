@@ -12,10 +12,4 @@ class Cafe(
     var description: String,
     @Indexed
     var category: Category
-) {
-    fun update(name: String, description: String, category: Category) {
-        this.name = name
-        this.description = description
-        this.category = category
-    }
-}
+)

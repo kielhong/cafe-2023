@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class SequenceService(
@@ -22,7 +21,6 @@ class SequenceService(
                 DatabaseSequence::class.java
             )
             .map { it.seq }
-            .switchIfEmpty(Mono.defer { Mono.just(1L) })
             .awaitSingle()
     }
 }
