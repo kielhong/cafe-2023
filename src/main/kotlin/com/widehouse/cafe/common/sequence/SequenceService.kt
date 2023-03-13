@@ -1,18 +1,18 @@
 package com.widehouse.cafe.common.sequence
 
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.FindAndModifyOptions.options
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class SequenceService(
     private val mongoOperations: ReactiveMongoOperations
 ) {
-    fun generateSequence(seqName: String): Mono<Long> {
+    suspend fun generateSequence(seqName: String): Long {
         return mongoOperations
             .findAndModify(
                 Query.query(where("_id").`is`(seqName)),
@@ -21,6 +21,6 @@ class SequenceService(
                 DatabaseSequence::class.java
             )
             .map { it.seq }
-            .switchIfEmpty(Mono.defer { Mono.just(1L) })
+            .awaitSingle()
     }
 }

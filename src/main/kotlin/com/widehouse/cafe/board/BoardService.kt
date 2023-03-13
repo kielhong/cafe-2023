@@ -22,7 +22,7 @@ class BoardService(
 
     @Transactional
     suspend fun create(cafeUrl: String, request: BoardRequest): BoardResponse {
-        val id = sequenceService.generateSequence(Board.SEQUENCE_NAME).block()!!
+        val id = sequenceService.generateSequence(Board.SEQUENCE_NAME)
         val board = boardRepository.save(Board(id, cafeUrl, request.name))
 
         return BoardResponse.from(board)

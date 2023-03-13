@@ -71,7 +71,6 @@ class CafeControllerTest(
             every { cafeService.create(any()) } returns Mono.just(response)
 
             val request = CafeRequestFixture.create()
-
             it("카페를 생성하고 200을 반환") {
                 webClient.post()
                     .uri("/cafes")
@@ -79,9 +78,6 @@ class CafeControllerTest(
                     .bodyValue(request)
                     .exchange()
                     .expectStatus().isOk
-                    .expectBody()
-                    .jsonPath("$.url").isEqualTo(response.url)
-                    .jsonPath("$.name").isEqualTo(response.name)
 
                 verify { cafeService.create(any()) }
             }

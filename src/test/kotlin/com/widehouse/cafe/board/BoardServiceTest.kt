@@ -9,12 +9,10 @@ import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.count
-import reactor.core.publisher.Mono
 
 class BoardServiceTest : StringSpec() {
     private lateinit var service: BoardService
@@ -35,7 +33,7 @@ class BoardServiceTest : StringSpec() {
 
             service = BoardService(boardRepository, sequenceService)
 
-            every { sequenceService.generateSequence(Board.SEQUENCE_NAME) } returns Mono.just(1L)
+            coEvery { sequenceService.generateSequence(Board.SEQUENCE_NAME) } returns 1L
         }
 
         "get Boards by Cafe" {

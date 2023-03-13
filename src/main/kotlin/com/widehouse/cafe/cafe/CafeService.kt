@@ -40,7 +40,9 @@ class CafeService(
             .switchIfEmpty(Mono.error(DataNotFoundException("${request.url} not found")))
             .flatMap {
                 val category = categoryRepository.findById(request.categoryId).block()!!
-                it.update(request.name, request.description, category)
+                it.name = request.name
+                it.description = request.description
+                it.category = category
                 cafeRepository.save(it)
             }
             .map { CafeResponse.from(it) }
