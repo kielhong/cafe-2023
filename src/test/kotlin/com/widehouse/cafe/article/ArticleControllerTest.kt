@@ -1,6 +1,7 @@
 package com.widehouse.cafe.article
 
 import com.ninjasquad.springmockk.MockkBean
+import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleRequestFixture
 import com.widehouse.cafe.article.dto.ArticleResponseFixture
 import io.kotest.core.spec.style.DescribeSpec
@@ -34,6 +35,23 @@ class ArticleControllerTest(
                     .expectStatus().isOk
 
                 coVerify { articleService.create(any()) }
+            }
+        }
+
+        describe("PUT /articles/{articleId}") {
+            val articleId = 1L
+            it("게시물을 수정하고 200을 반환") {
+                coEvery { articleService.update(any(), any()) } returns ArticleResponseFixture.create()
+
+                val request = ArticleRequest("cafe", 1L, "subject2", "content2")
+                webClient.put()
+                    .uri("/articles/{articleId}", articleId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(request)
+                    .exchange()
+                    .expectStatus().isOk
+
+                coVerify { articleService.update(articleId, any()) }
             }
         }
     }

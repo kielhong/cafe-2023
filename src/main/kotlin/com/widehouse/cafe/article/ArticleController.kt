@@ -2,7 +2,9 @@ package com.widehouse.cafe.article
 
 import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleResponse
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -13,7 +15,17 @@ class ArticleController(
     private val articleService: ArticleService
 ) {
     @PostMapping
-    suspend fun create(@RequestBody request: ArticleRequest): ArticleResponse {
+    suspend fun create(
+        @RequestBody request: ArticleRequest
+    ): ArticleResponse {
         return articleService.create(request)
+    }
+
+    @PutMapping("{articleId}")
+    suspend fun update(
+        @PathVariable articleId: Long,
+        @RequestBody request: ArticleRequest
+    ): ArticleResponse {
+        return articleService.update(articleId, request)
     }
 }
