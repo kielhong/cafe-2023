@@ -4,6 +4,7 @@ import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleResponse
 import com.widehouse.cafe.article.model.Article
 import com.widehouse.cafe.board.BoardRepository
+import com.widehouse.cafe.common.exception.DataNotFoundException
 import com.widehouse.cafe.common.sequence.SequenceService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +24,18 @@ class ArticleService(
             .run {
                 Article(this, request.cafeUrl, request.boardId, request.subject, request.content, LocalDateTime.now())
             }
+
+        return articleRepository.save(article)
+            .run {
+                ArticleResponse.from(this)
+            }
+    }
+
+    @Transactional
+    suspend fun update(articleId: Long, request: ArticleRequest): ArticleResponse {
+        val article = articleRepository.findById(articleId)
+            ?.let { Article(it.id, it.cafeUrl, request.boardId, request.subject, request.content, it.createdAt) }
+            ?: throw DataNotFoundException("$articleId not found exception")
 
         return articleRepository.save(article)
             .run {

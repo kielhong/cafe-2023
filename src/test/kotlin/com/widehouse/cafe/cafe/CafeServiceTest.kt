@@ -5,6 +5,7 @@ import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture
 import com.widehouse.cafe.cafe.model.Category
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
@@ -26,6 +27,7 @@ class CafeServiceTest : DescribeSpec() {
     private lateinit var categoryRepository: CategoryRepository
 
     init {
+        isolationMode = IsolationMode.InstancePerLeaf
         MockKAnnotations.init(this)
 
         lateinit var cafe: Cafe
