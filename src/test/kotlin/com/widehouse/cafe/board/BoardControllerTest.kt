@@ -11,18 +11,21 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
 import kotlinx.coroutines.flow.asFlow
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@WebFluxTest(BoardController::class)
+@WebFluxTest(
+    BoardController::class,
+    excludeAutoConfiguration = [ReactiveSecurityAutoConfiguration::class]
+)
 class BoardControllerTest(
-    private val webClient: WebTestClient
+    private val webClient: WebTestClient,
+    @MockkBean
+    private val boardService: BoardService
 ) : StringSpec() {
     override fun extensions() = listOf(SpringExtension)
-
-    @MockkBean
-    private lateinit var boardService: BoardService
 
     init {
         coroutineTestScope = true

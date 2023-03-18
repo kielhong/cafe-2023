@@ -11,18 +11,21 @@ import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.just
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@WebFluxTest(ArticleController::class)
+@WebFluxTest(
+    ArticleController::class,
+    excludeAutoConfiguration = [ReactiveSecurityAutoConfiguration::class]
+)
 class ArticleControllerTest(
-    private val webClient: WebTestClient
+    private val webClient: WebTestClient,
+    @MockkBean
+    private val articleService: ArticleService
 ) : DescribeSpec() {
     override fun extensions() = listOf(SpringExtension)
-
-    @MockkBean
-    private lateinit var articleService: ArticleService
 
     init {
         describe("POST /articles") {

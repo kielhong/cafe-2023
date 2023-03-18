@@ -8,20 +8,23 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@WebFluxTest(CafeController::class)
+@WebFluxTest(
+    CafeController::class,
+    excludeAutoConfiguration = [ReactiveSecurityAutoConfiguration::class]
+)
 class CafeControllerTest(
-    private val webClient: WebTestClient
+    private val webClient: WebTestClient,
+    @MockkBean
+    private val cafeService: CafeService
 ) : DescribeSpec() {
     override fun extensions() = listOf(SpringExtension)
-
-    @MockkBean
-    private lateinit var cafeService: CafeService
 
     init {
         describe("get /cafes/{url}") {
@@ -30,7 +33,8 @@ class CafeControllerTest(
             every { cafeService.getCafe(any()) } returns Mono.just(response)
 
             it("개별 카페를 반환, 200 OK") {
-                webClient.get()
+                webClient
+                    .get()
                     .uri("/cafes/{url}", url)
                     .exchange()
                     .expectStatus().isOk
