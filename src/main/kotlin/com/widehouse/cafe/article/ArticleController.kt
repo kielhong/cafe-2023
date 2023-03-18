@@ -2,6 +2,7 @@ package com.widehouse.cafe.article
 
 import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleResponse
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -27,5 +28,12 @@ class ArticleController(
         @RequestBody request: ArticleRequest
     ): ArticleResponse {
         return articleService.update(articleId, request)
+    }
+
+    @DeleteMapping("{articleId}")
+    suspend fun delete(
+        @PathVariable articleId: Long
+    ) {
+        return articleService.delete(articleId)
     }
 }
