@@ -42,4 +42,12 @@ class ArticleService(
                 ArticleResponse.from(this)
             }
     }
+
+    @Transactional
+    suspend fun delete(articleId: Long) {
+        articleRepository.findById(articleId)
+            ?: throw DataNotFoundException("$articleId not found exception")
+
+        articleRepository.deleteById(articleId)
+    }
 }

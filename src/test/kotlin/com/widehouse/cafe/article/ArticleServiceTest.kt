@@ -12,10 +12,12 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import org.springframework.test.util.ReflectionTestUtils.setField
 
 class ArticleServiceTest : DescribeSpec() {
@@ -107,6 +109,33 @@ class ArticleServiceTest : DescribeSpec() {
                         service.update(articleId, request)
                     }
                     coVerify(exactly = 0) { articleRepository.save(any()) }
+                }
+            }
+        }
+
+        describe("delete") {
+            val articleId = 1L
+            val article = ArticleFixture.create(articleId)
+
+            context("존재하는 게시물") {
+                it("삭제 처리") {
+                    coEvery { articleRepository.findById(any()) } returns article
+                    coEvery { articleRepository.deleteById(any()) } just Runs
+                    // when
+                    service.delete(articleId)
+                    // then
+                    coEvery { articleRepository.deleteById(articleId) }
+                }
+            }
+
+            context("존재하지 않는 article") {
+                it("throw DataNotFoundException") {
+                    coEvery { articleRepository.findById(any()) } returns null
+                    // when
+                    shouldThrow<DataNotFoundException> {
+                        service.delete(articleId)
+                    }
+                    coVerify(exactly = 0) { articleRepository.deleteById(articleId) }
                 }
             }
         }
