@@ -34,6 +34,7 @@ class ArticleService(
 
     @Transactional
     suspend fun update(articleId: Long, request: ArticleRequest): ArticleResponse {
+        // TODO : user
         val article = articleRepository.findById(articleId)
             ?.let { Article(it.id, it.cafeUrl, request.boardId, "username", request.subject, request.content, it.createdAt) }
             ?: throw DataNotFoundException("$articleId not found exception")
@@ -42,8 +43,6 @@ class ArticleService(
             .run {
                 ArticleResponse.from(this)
             }
-
-        TODO("user 처리")
     }
 
     @Transactional
