@@ -18,6 +18,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
+import org.springframework.security.core.userdetails.User
 import org.springframework.test.util.ReflectionTestUtils.setField
 
 class ArticleServiceTest : DescribeSpec() {
@@ -50,13 +51,14 @@ class ArticleServiceTest : DescribeSpec() {
         }
 
         describe("create") {
+            val user = User.withUsername("username").password("user").roles("USER").build()
             val request = ArticleRequestFixture.create()
 
             context("정상적인 입력") {
                 it("Article 생성 후 response 반환") {
                     coEvery { articleRepository.save(any()) } returnsArgument 0
                     // when
-                    val result = service.create(request)
+                    val result = service.create(user, request)
                     // then
                     result.id shouldBe 1L
                     result.cafeUrl shouldBe request.cafeUrl
@@ -72,7 +74,7 @@ class ArticleServiceTest : DescribeSpec() {
                     coEvery { boardRepository.findById(any()) } returns null
                     // when
                     shouldThrow<IllegalArgumentException> {
-                        service.create(request)
+                        service.create(user, request)
                     }
                 }
             }
