@@ -3,9 +3,8 @@ package com.widehouse.cafe.cafe
 import com.ninjasquad.springmockk.MockkBean
 import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.dto.CafeResponseFixture
+import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
-import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
@@ -16,13 +15,10 @@ import reactor.core.publisher.Mono
 
 @WebFluxTest(CafeController::class)
 class CafeControllerTest(
-    private val webClient: WebTestClient
-) : DescribeSpec() {
-    override fun extensions() = listOf(SpringExtension)
-
+    private val webClient: WebTestClient,
     @MockkBean
-    private lateinit var cafeService: CafeService
-
+    private val cafeService: CafeService
+) : SecurityControllerTest() {
     init {
         describe("get /cafes/{url}") {
             val url = "test"
@@ -30,7 +26,8 @@ class CafeControllerTest(
             every { cafeService.getCafe(any()) } returns Mono.just(response)
 
             it("개별 카페를 반환, 200 OK") {
-                webClient.get()
+                webClient
+                    .get()
                     .uri("/cafes/{url}", url)
                     .exchange()
                     .expectStatus().isOk
