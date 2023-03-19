@@ -8,6 +8,7 @@ class Article(
     val id: Long,
     val cafeUrl: String,
     val boardId: Long,
+    val username: String,
     val subject: String,
     val content: String,
     val createdAt: LocalDateTime

@@ -12,23 +12,31 @@ import io.mockk.coVerify
 import io.mockk.just
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.util.*
 
 @WebFluxTest(ArticleController::class)
 class ArticleControllerTest(
     private val webClient: WebTestClient,
     @MockkBean
-    private val articleService: ArticleService
+    private val articleService: ArticleService,
+    @MockkBean
+    private val userDetailsService: UserDetailsService
 ) : SecurityControllerTest() {
     init {
         describe("POST /articles") {
-            coEvery { articleService.create(any()) } returns ArticleResponseFixture.create()
+            val username = UUID.randomUUID().toString()
+            val user = User.withUsername(username).password("user").roles("USER").build()
+            coEvery { userDetailsService.loadUserByUsername(any()) } returns user
+            coEvery { articleService.create(any(), any()) } returns ArticleResponseFixture.create()
 
             it("게시물을 생성하고 200을 반환") {
                 val request = ArticleRequestFixture.create()
                 webClient
-                    .mutateWith(mockUser())
+                    .mutateWith(mockUser(username))
                     .post()
                     .uri("/articles")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -36,7 +44,7 @@ class ArticleControllerTest(
                     .exchange()
                     .expectStatus().isOk
 
-                coVerify { articleService.create(any()) }
+                coVerify { articleService.create(user, any()) }
             }
         }
 
