@@ -35,3 +35,6 @@ Cafe 2023
     * mockk coroutine
       * https://mockk.io/#coroutines
       * https://notwoods.github.io/mockk-guidebook/docs/mocking/coroutines/
+  * spring security
+    * [WebFlux Security](https://docs.spring.io/spring-security/reference/reactive/configuration/webflux.html)
+    * `@WebFluxTest` 사용시 추가 설정은 `@Import` 등을 사용 - [참조](https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/test/autoconfigure/web/reactive/WebFluxTest.html)

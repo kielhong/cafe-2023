@@ -3,29 +3,22 @@ package com.widehouse.cafe.cafe
 import com.ninjasquad.springmockk.MockkBean
 import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.dto.CafeResponseFixture
+import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
-import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.mockk.every
 import io.mockk.verify
-import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@WebFluxTest(
-    CafeController::class,
-    excludeAutoConfiguration = [ReactiveSecurityAutoConfiguration::class]
-)
+@WebFluxTest(CafeController::class)
 class CafeControllerTest(
     private val webClient: WebTestClient,
     @MockkBean
     private val cafeService: CafeService
-) : DescribeSpec() {
-    override fun extensions() = listOf(SpringExtension)
-
+) : SecurityControllerTest() {
     init {
         describe("get /cafes/{url}") {
             val url = "test"
