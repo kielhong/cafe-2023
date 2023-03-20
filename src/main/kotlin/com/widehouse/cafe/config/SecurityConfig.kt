@@ -1,5 +1,6 @@
 package com.widehouse.cafe.config
 
+import com.widehouse.cafe.user.Role
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -33,7 +34,7 @@ class SecurityConfig {
     fun userDetailsService(): ReactiveUserDetailsService {
         val userDetails = User.withUsername("user")
             .password("user")
-            .roles("USER")
+            .roles(Role.USER.value)
             .build()
         return MapReactiveUserDetailsService(userDetails)
     }

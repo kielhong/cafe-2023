@@ -5,6 +5,7 @@ import com.widehouse.cafe.article.dto.ArticleResponse
 import com.widehouse.cafe.article.model.Article
 import com.widehouse.cafe.board.BoardRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import com.widehouse.cafe.common.exception.ForbiddenException
 import com.widehouse.cafe.common.sequence.SequenceService
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -46,10 +47,13 @@ class ArticleService(
     }
 
     @Transactional
-    suspend fun delete(articleId: Long) {
-        articleRepository.findById(articleId)
+    suspend fun delete(user: UserDetails, articleId: Long) {
+        val article = articleRepository.findById(articleId)
             ?: throw DataNotFoundException("$articleId not found exception")
+        if (article.username != user.username) {
+            throw ForbiddenException("article delete forbidden")
+        }
 
-        articleRepository.deleteById(articleId)
+        articleRepository.delete(article)
     }
 }

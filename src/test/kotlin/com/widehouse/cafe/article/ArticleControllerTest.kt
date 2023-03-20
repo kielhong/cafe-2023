@@ -6,6 +6,8 @@ import com.widehouse.cafe.article.dto.ArticleRequestFixture
 import com.widehouse.cafe.article.dto.ArticleResponseFixture
 import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import com.widehouse.cafe.common.exception.ForbiddenException
+import com.widehouse.cafe.user.Role
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -13,6 +15,7 @@ import io.mockk.just
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -27,10 +30,17 @@ class ArticleControllerTest(
     private val userDetailsService: UserDetailsService
 ) : SecurityControllerTest() {
     init {
-        describe("POST /articles") {
-            val username = UUID.randomUUID().toString()
-            val user = User.withUsername(username).password("user").roles("USER").build()
+        lateinit var username: String
+        lateinit var user: UserDetails
+
+        beforeEach {
+            username = UUID.randomUUID().toString()
+            user = User.withUsername(username).password("user").roles(Role.USER.value).build()
+
             coEvery { userDetailsService.loadUserByUsername(any()) } returns user
+        }
+
+        describe("POST /articles") {
             coEvery { articleService.create(any(), any()) } returns ArticleResponseFixture.create()
 
             it("게시물을 생성하고 200을 반환") {
@@ -70,7 +80,7 @@ class ArticleControllerTest(
         describe("DELETE /articles/{articleId}") {
             val articleId = 1L
             it("게시물을 삭제하고 200을 반환") {
-                coEvery { articleService.delete(any()) } just Runs
+                coEvery { articleService.delete(any(), any()) } just Runs
 
                 webClient
                     .mutateWith(mockUser())
@@ -79,11 +89,11 @@ class ArticleControllerTest(
                     .exchange()
                     .expectStatus().isOk
 
-                coVerify { articleService.delete(articleId) }
+                coVerify { articleService.delete(user, articleId) }
             }
 
             it("존재하지 않는 게시물이면 404") {
-                coEvery { articleService.delete(any()) } throws DataNotFoundException("")
+                coEvery { articleService.delete(any(), any()) } throws DataNotFoundException("")
 
                 webClient
                     .mutateWith(mockUser())
@@ -91,6 +101,17 @@ class ArticleControllerTest(
                     .uri("/articles/{articleId}", articleId)
                     .exchange()
                     .expectStatus().isNotFound
+            }
+
+            it("작성자가 아닌 사람이 삭제할 경우 403") {
+                coEvery { articleService.delete(any(), any()) } throws ForbiddenException("")
+
+                webClient
+                    .mutateWith(mockUser())
+                    .delete()
+                    .uri("/articles/{articleId}", articleId)
+                    .exchange()
+                    .expectStatus().isForbidden
             }
         }
     }

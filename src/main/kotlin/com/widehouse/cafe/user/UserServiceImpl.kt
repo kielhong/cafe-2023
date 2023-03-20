@@ -10,7 +10,7 @@ class UserServiceImpl : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails {
         return User.withUsername(username)
             .password("user")
-            .roles("USER")
+            .roles(Role.USER.value)
             .build()
     }
 }
