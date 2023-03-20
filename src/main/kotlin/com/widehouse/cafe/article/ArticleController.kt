@@ -37,8 +37,10 @@ class ArticleController(
 
     @DeleteMapping("{articleId}")
     suspend fun delete(
+        principal: Principal,
         @PathVariable articleId: Long
     ) {
-        return articleService.delete(articleId)
+        val user = userDetailsService.loadUserByUsername(principal.name)
+        return articleService.delete(user, articleId)
     }
 }

@@ -5,7 +5,9 @@ import com.widehouse.cafe.article.model.Article
 import com.widehouse.cafe.board.BoardRepository
 import com.widehouse.cafe.board.model.BoardFixture
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import com.widehouse.cafe.common.exception.ForbiddenException
 import com.widehouse.cafe.common.sequence.SequenceService
+import com.widehouse.cafe.user.Role.USER
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
@@ -19,6 +21,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.test.util.ReflectionTestUtils.setField
 
 class ArticleServiceTest : DescribeSpec() {
@@ -37,11 +40,15 @@ class ArticleServiceTest : DescribeSpec() {
         isolationMode = IsolationMode.InstancePerLeaf
         coroutineTestScope = true
 
+        lateinit var user: UserDetails
+
         beforeEach {
             MockKAnnotations.init(this)
 
             service = ArticleService(articleRepository, boardRepository, sequenceService)
-
+            // data
+            user = User.withUsername("username").password("user").roles(USER.value).build()
+            // mock method
             coEvery { boardRepository.findById(any()) } returns BoardFixture.create()
             coEvery { sequenceService.generateSequence(Article.SEQUENCE_NAME) } returns 1L
         }
@@ -51,7 +58,6 @@ class ArticleServiceTest : DescribeSpec() {
         }
 
         describe("create") {
-            val user = User.withUsername("username").password("user").roles("USER").build()
             val request = ArticleRequestFixture.create()
 
             context("정상적인 입력") {
@@ -122,11 +128,11 @@ class ArticleServiceTest : DescribeSpec() {
             context("존재하는 게시물") {
                 it("삭제 처리") {
                     coEvery { articleRepository.findById(any()) } returns article
-                    coEvery { articleRepository.deleteById(any()) } just Runs
+                    coEvery { articleRepository.delete(any()) } just Runs
                     // when
-                    service.delete(articleId)
+                    service.delete(user, articleId)
                     // then
-                    coEvery { articleRepository.deleteById(articleId) }
+                    coEvery { articleRepository.delete(article) }
                 }
             }
 
@@ -135,9 +141,21 @@ class ArticleServiceTest : DescribeSpec() {
                     coEvery { articleRepository.findById(any()) } returns null
                     // when
                     shouldThrow<DataNotFoundException> {
-                        service.delete(articleId)
+                        service.delete(user, articleId)
                     }
-                    coVerify(exactly = 0) { articleRepository.deleteById(articleId) }
+                    coVerify(exactly = 0) { articleRepository.delete(any()) }
+                }
+            }
+
+            context("작성자와 다른 article") {
+                it("throw ForbiddenException") {
+                    user = User.withUsername("otherusername").password("user").roles(USER.value).build()
+                    coEvery { articleRepository.findById(any()) } returns article
+                    // when
+                    shouldThrow<ForbiddenException> {
+                        service.delete(user, articleId)
+                    }
+                    coVerify(exactly = 0) { articleRepository.delete(any()) }
                 }
             }
         }
