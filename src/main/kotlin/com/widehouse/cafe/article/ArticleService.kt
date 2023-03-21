@@ -7,6 +7,9 @@ import com.widehouse.cafe.board.BoardRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import com.widehouse.cafe.common.exception.ForbiddenException
 import com.widehouse.cafe.common.sequence.SequenceService
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -55,5 +58,16 @@ class ArticleService(
         }
 
         articleRepository.delete(article)
+    }
+
+    /**
+     * 참조 : https://github.com/RobertHeim/spring-security-bug-preauth-coroutines
+     */
+    @PreAuthorize("#article[0].username == authentication.principal.username")
+    suspend fun test(article: Article) {
+        val authentication: Authentication = SecurityContextHolder.getContext().authentication
+
+        println("article.username = ${article.username}")
+        println("authentication.principal = ${authentication.principal}")
     }
 }
