@@ -3,6 +3,9 @@ package com.widehouse.cafe.config
 import com.widehouse.cafe.user.Role
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.config.web.server.invoke
@@ -13,6 +16,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 
 @Configuration
 @EnableWebFluxSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig {
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -33,7 +37,7 @@ class SecurityConfig {
     @Bean
     fun userDetailsService(): ReactiveUserDetailsService {
         val userDetails = User.withUsername("user")
-            .password("user")
+            .password("password")
             .roles(Role.USER.value)
             .build()
         return MapReactiveUserDetailsService(userDetails)

@@ -47,7 +47,7 @@ class ArticleServiceTest : DescribeSpec() {
 
             service = ArticleService(articleRepository, boardRepository, sequenceService)
             // data
-            user = User.withUsername("username").password("user").roles(USER.value).build()
+            user = User.withUsername("user").password("user").roles(USER.value).build()
             // mock method
             coEvery { boardRepository.findById(any()) } returns BoardFixture.create()
             coEvery { sequenceService.generateSequence(Article.SEQUENCE_NAME) } returns 1L
