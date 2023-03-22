@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleRequestFixture
 import com.widehouse.cafe.article.dto.ArticleResponseFixture
+import com.widehouse.cafe.article.service.ArticleService
 import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import com.widehouse.cafe.common.exception.ForbiddenException
@@ -80,7 +81,7 @@ class ArticleControllerTest(
         describe("DELETE /articles/{articleId}") {
             val articleId = 1L
             it("게시물을 삭제하고 200을 반환") {
-                coEvery { articleService.delete(any(), any()) } just Runs
+                coEvery { articleService.delete(any()) } just Runs
 
                 webClient
                     .mutateWith(mockUser())
@@ -89,11 +90,11 @@ class ArticleControllerTest(
                     .exchange()
                     .expectStatus().isOk
 
-                coVerify { articleService.delete(user, articleId) }
+                coVerify { articleService.delete(articleId) }
             }
 
             it("존재하지 않는 게시물이면 404") {
-                coEvery { articleService.delete(any(), any()) } throws DataNotFoundException("")
+                coEvery { articleService.delete(any()) } throws DataNotFoundException("")
 
                 webClient
                     .mutateWith(mockUser())
@@ -104,7 +105,7 @@ class ArticleControllerTest(
             }
 
             it("작성자가 아닌 사람이 삭제할 경우 403") {
-                coEvery { articleService.delete(any(), any()) } throws ForbiddenException("")
+                coEvery { articleService.delete(any()) } throws ForbiddenException("")
 
                 webClient
                     .mutateWith(mockUser())

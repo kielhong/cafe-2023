@@ -2,6 +2,7 @@ package com.widehouse.cafe.article
 
 import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleResponse
+import com.widehouse.cafe.article.service.ArticleService
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -40,7 +41,6 @@ class ArticleController(
         principal: Principal,
         @PathVariable articleId: Long
     ) {
-        val user = userDetailsService.loadUserByUsername(principal.name)
-        return articleService.delete(user, articleId)
+        return articleService.delete(articleId)
     }
 }
