@@ -1,11 +1,11 @@
-package com.widehouse.cafe.article
+package com.widehouse.cafe.article.service
 
+import com.widehouse.cafe.article.ArticleRepository
 import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleResponse
 import com.widehouse.cafe.article.model.Article
 import com.widehouse.cafe.board.BoardRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
-import com.widehouse.cafe.common.exception.ForbiddenException
 import com.widehouse.cafe.common.sequence.SequenceService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
@@ -17,6 +17,7 @@ import java.time.LocalDateTime
 
 @Service
 class ArticleService(
+    private val articleDomainService: ArticleDomainService,
     private val articleRepository: ArticleRepository,
     private val boardRepository: BoardRepository,
     private val sequenceService: SequenceService
@@ -50,14 +51,10 @@ class ArticleService(
     }
 
     @Transactional
-    suspend fun delete(user: UserDetails, articleId: Long) {
-        val article = articleRepository.findById(articleId)
-            ?: throw DataNotFoundException("$articleId not found exception")
-        if (article.username != user.username) {
-            throw ForbiddenException("article delete forbidden")
-        }
-
-        articleRepository.delete(article)
+    suspend fun delete(articleId: Long) {
+        articleDomainService.getArticleById(articleId)
+            ?.let { articleDomainService.delete(it) }
+            ?: throw DataNotFoundException("$articleId not found")
     }
 
     /**

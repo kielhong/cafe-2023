@@ -1,5 +1,6 @@
-package com.widehouse.cafe.article
+package com.widehouse.cafe.article.service
 
+import com.widehouse.cafe.article.ArticleFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
