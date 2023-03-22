@@ -7,9 +7,6 @@ import com.widehouse.cafe.article.model.Article
 import com.widehouse.cafe.board.BoardRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import com.widehouse.cafe.common.sequence.SequenceService
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,15 +23,11 @@ class ArticleService(
     suspend fun create(user: UserDetails, request: ArticleRequest): ArticleResponse {
         requireNotNull(boardRepository.findById(request.boardId))
 
-        val article = sequenceService.generateSequence(Article.SEQUENCE_NAME)
-            .run {
-                Article(this, request.cafeUrl, request.boardId, user.username, request.subject, request.content, LocalDateTime.now())
-            }
+        val id = sequenceService.generateSequence(Article.SEQUENCE_NAME)
+        val article = Article(id, request.cafeUrl, request.boardId, user.username, request.subject, request.content, LocalDateTime.now())
 
-        return articleRepository.save(article)
-            .run {
-                ArticleResponse.from(this)
-            }
+        return articleDomainService.create(article)
+            .run { ArticleResponse.from(this) }
     }
 
     @Transactional
@@ -55,16 +48,5 @@ class ArticleService(
         articleDomainService.getArticleById(articleId)
             ?.let { articleDomainService.delete(it) }
             ?: throw DataNotFoundException("$articleId not found")
-    }
-
-    /**
-     * 참조 : https://github.com/RobertHeim/spring-security-bug-preauth-coroutines
-     */
-    @PreAuthorize("#article[0].username == authentication.principal.username")
-    suspend fun test(article: Article) {
-        val authentication: Authentication = SecurityContextHolder.getContext().authentication
-
-        println("article.username = ${article.username}")
-        println("authentication.principal = ${authentication.principal}")
     }
 }

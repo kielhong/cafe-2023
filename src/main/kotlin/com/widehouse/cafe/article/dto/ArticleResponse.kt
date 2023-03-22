@@ -9,6 +9,7 @@ data class ArticleResponse(
     val boardId: Long,
     val subject: String,
     val content: String,
+    val username: String,
     val createdAt: LocalDateTime
 ) {
     companion object {
@@ -19,6 +20,7 @@ data class ArticleResponse(
                 article.boardId,
                 article.subject,
                 article.content,
+                article.username,
                 article.createdAt
             )
     }

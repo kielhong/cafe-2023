@@ -12,7 +12,7 @@ import org.springframework.security.test.context.support.WithMockUser
 @SpringBootTest
 @WithMockUser(username = "user")
 class MethodAuthTest(
-    service: ArticleService
+    service: ArticleDomainService
 ) : StringSpec() {
     override fun extensions() = listOf(SpringExtension)
 
@@ -24,14 +24,14 @@ class MethodAuthTest(
         "auth" {
             val article = ArticleFixture.create(username = "user")
 
-            service.test(article)
+            service.delete(article)
         }
 
         "auth fail" {
             val article = ArticleFixture.create(username = "notuser")
 
             shouldThrow<AccessDeniedException> {
-                service.test(article)
+                service.delete(article)
             }
         }
     }
