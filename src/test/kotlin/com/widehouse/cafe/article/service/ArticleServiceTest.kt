@@ -52,7 +52,7 @@ class ArticleServiceTest : DescribeSpec() {
 
             service = ArticleService(articleDomainService, articleRepository, boardRepository, sequenceService)
             // data
-            user = User.withUsername("user").password("user").roles(USER.value).build()
+            user = User.withUsername("user").password("password").roles(USER.value).build()
             // mock method
             coEvery { boardRepository.findById(any()) } returns BoardFixture.create()
             coEvery { sequenceService.generateSequence(Article.SEQUENCE_NAME) } returns 1L
@@ -67,7 +67,7 @@ class ArticleServiceTest : DescribeSpec() {
 
             context("정상적인 입력") {
                 it("Article 생성 후 response 반환") {
-                    coEvery { articleRepository.save(any()) } returnsArgument 0
+                    coEvery { articleDomainService.create(any()) } returnsArgument 0
                     // when
                     val result = service.create(user, request)
                     // then
@@ -76,6 +76,7 @@ class ArticleServiceTest : DescribeSpec() {
                     result.boardId shouldBe request.boardId
                     result.subject shouldBe request.subject
                     result.content shouldBe request.content
+                    result.username shouldBe user.username
                     result.createdAt.shouldNotBeNull()
                 }
             }

@@ -23,11 +23,12 @@ class ArticleDomainServiceTest : StringSpec() {
         isolationMode = IsolationMode.InstancePerLeaf
         coroutineTestScope = true
 
+        val article = ArticleFixture.create()
+
         beforeEach {
             MockKAnnotations.init(this)
 
             service = ArticleDomainService(articleRepository)
-//            coEvery { sequenceService.generateSequence(Article.SEQUENCE_NAME) } returns 1L
         }
 
         afterEach {
@@ -35,7 +36,6 @@ class ArticleDomainServiceTest : StringSpec() {
         }
 
         "getArticle by id then return Article" {
-            val article = ArticleFixture.create()
             coEvery { articleRepository.findById(any()) } returns article
             // when
             val result = service.getArticleById(1L)
@@ -43,8 +43,15 @@ class ArticleDomainServiceTest : StringSpec() {
             result shouldBe article
         }
 
+        "create Article" {
+            coEvery { articleRepository.save(any()) } returnsArgument 0
+            // when
+            service.create(article)
+            // then
+            coVerify { articleRepository.save(article) }
+        }
+
         "delete Article" {
-            val article = ArticleFixture.create()
             coEvery { articleRepository.delete(any()) } just Runs
             // when
             service.delete(article)

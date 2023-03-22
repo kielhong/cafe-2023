@@ -17,4 +17,8 @@ class ArticleDomainService(
     suspend fun delete(article: Article) {
         articleRepository.delete(article)
     }
+
+    suspend fun create(article: Article): Article {
+        return articleRepository.save(article)
+    }
 }
