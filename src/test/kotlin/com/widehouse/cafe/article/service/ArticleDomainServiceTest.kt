@@ -51,6 +51,14 @@ class ArticleDomainServiceTest : StringSpec() {
             coVerify { articleRepository.save(article) }
         }
 
+        "update Article" {
+            coEvery { articleRepository.save(any()) } returnsArgument 0
+            // when
+            service.update(article)
+            // then
+            coVerify { articleRepository.save(article) }
+        }
+
         "delete Article" {
             coEvery { articleRepository.delete(any()) } just Runs
             // when

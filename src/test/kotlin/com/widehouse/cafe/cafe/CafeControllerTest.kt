@@ -5,8 +5,9 @@ import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.dto.CafeResponseFixture
 import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.verify
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -65,7 +66,7 @@ class CafeControllerTest(
 
         describe("post /cafes") {
             val response = CafeResponseFixture.create()
-            every { cafeService.create(any()) } returns Mono.just(response)
+            coEvery { cafeService.create(any()) } returns response
 
             val request = CafeRequestFixture.create()
             it("카페를 생성하고 200을 반환") {
@@ -76,7 +77,7 @@ class CafeControllerTest(
                     .exchange()
                     .expectStatus().isOk
 
-                verify { cafeService.create(any()) }
+                coVerify { cafeService.create(any()) }
             }
         }
 

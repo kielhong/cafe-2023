@@ -3,6 +3,7 @@ package com.widehouse.cafe.cafe
 import com.widehouse.cafe.cafe.dto.CafeRequest
 import com.widehouse.cafe.cafe.dto.CafeResponse
 import com.widehouse.cafe.cafe.model.Cafe
+import com.widehouse.cafe.cafe.service.CafeDomainService
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono
 @Service
 @Transactional
 class CafeService(
+    private val cafeDomainService: CafeDomainService,
     private val cafeRepository: CafeRepository,
     private val categoryRepository: CategoryRepository
 ) {
@@ -28,11 +30,12 @@ class CafeService(
             .map { CafeResponse.from(it) }
     }
 
-    fun create(request: CafeRequest): Mono<CafeResponse> {
-        return categoryRepository.findById(request.categoryId)
+    suspend fun create(request: CafeRequest): CafeResponse {
+        val cafe = categoryRepository.findById(request.categoryId)
             .map { Cafe(request.url, request.name, request.description, it) }
-            .flatMap { cafeRepository.save(it) }
-            .map { CafeResponse.from(it) }
+            .block()!!
+        val savedCafe = cafeDomainService.create(cafe)
+        return CafeResponse.from(savedCafe)
     }
 
     fun update(request: CafeRequest): Mono<CafeResponse> {

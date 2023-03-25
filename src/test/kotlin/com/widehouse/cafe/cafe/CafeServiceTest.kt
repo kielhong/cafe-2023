@@ -4,12 +4,14 @@ import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture
 import com.widehouse.cafe.cafe.model.Category
+import com.widehouse.cafe.cafe.service.CafeDomainService
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -19,6 +21,9 @@ import reactor.test.StepVerifier
 
 class CafeServiceTest : DescribeSpec() {
     private lateinit var service: CafeService
+
+    @MockK
+    private lateinit var cafeDomainService: CafeDomainService
 
     @MockK
     private lateinit var cafeRepository: CafeRepository
@@ -33,7 +38,7 @@ class CafeServiceTest : DescribeSpec() {
         lateinit var cafe: Cafe
 
         beforeEach {
-            service = CafeService(cafeRepository, categoryRepository)
+            service = CafeService(cafeDomainService, cafeRepository, categoryRepository)
 
             cafe = CafeFixture.create()
             every { cafeRepository.findByUrl(any()) } returns Mono.just(cafe)
@@ -93,19 +98,14 @@ class CafeServiceTest : DescribeSpec() {
             it("생성된 카페를 반환") {
                 // given
                 val createdCafe = Cafe(request.url, request.name, request.description, Category(request.categoryId, ""))
-                every { cafeRepository.save(any()) } returns Mono.just(createdCafe)
+                coEvery { cafeDomainService.create(any()) } returns createdCafe
                 // when
                 val result = service.create(request)
                 // then
-                result
-                    .`as`(StepVerifier::create)
-                    .assertNext {
-                        it.url shouldBe request.url
-                        it.name shouldBe request.name
-                        it.description shouldBe request.description
-                        it.category.id shouldBe request.categoryId
-                    }
-                    .verifyComplete()
+                result.url shouldBe request.url
+                result.name shouldBe request.name
+                result.description shouldBe request.description
+                result.category.id shouldBe request.categoryId
             }
         }
 

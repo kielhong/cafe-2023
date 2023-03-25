@@ -30,7 +30,7 @@ class CafeController(
     }
 
     @PostMapping
-    fun create(@RequestBody cafeRequest: CafeRequest): Mono<CafeResponse> {
+    suspend fun create(@RequestBody cafeRequest: CafeRequest): CafeResponse {
         return cafeService.create(cafeRequest)
     }
 
