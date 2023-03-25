@@ -13,12 +13,17 @@ class ArticleDomainService(
         return articleRepository.findById(articleId)
     }
 
+    suspend fun create(article: Article): Article {
+        return articleRepository.save(article)
+    }
+
+    @PreAuthorize("#article[0].username == authentication.principal.username")
+    suspend fun update(article: Article): Article {
+        return articleRepository.save(article)
+    }
+
     @PreAuthorize("#article[0].username == authentication.principal.username")
     suspend fun delete(article: Article) {
         articleRepository.delete(article)
-    }
-
-    suspend fun create(article: Article): Article {
-        return articleRepository.save(article)
     }
 }

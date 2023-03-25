@@ -1,7 +1,6 @@
 package com.widehouse.cafe.article.service
 
 import com.widehouse.cafe.article.ArticleFixture
-import com.widehouse.cafe.article.ArticleRepository
 import com.widehouse.cafe.article.dto.ArticleRequestFixture
 import com.widehouse.cafe.article.model.Article
 import com.widehouse.cafe.board.BoardRepository
@@ -33,9 +32,6 @@ class ArticleServiceTest : DescribeSpec() {
     private lateinit var articleDomainService: ArticleDomainService
 
     @MockK
-    private lateinit var articleRepository: ArticleRepository
-
-    @MockK
     private lateinit var boardRepository: BoardRepository
 
     @MockK
@@ -50,7 +46,7 @@ class ArticleServiceTest : DescribeSpec() {
         beforeEach {
             MockKAnnotations.init(this)
 
-            service = ArticleService(articleDomainService, articleRepository, boardRepository, sequenceService)
+            service = ArticleService(articleDomainService, boardRepository, sequenceService)
             // data
             user = User.withUsername("user").password("password").roles(USER.value).build()
             // mock method
@@ -98,12 +94,12 @@ class ArticleServiceTest : DescribeSpec() {
                 setField(this, "subject", "new subject")
                 setField(this, "content", "new content")
             }
+            val article = ArticleFixture.create(articleId)
 
             context("정상적인 입력") {
                 it("Article 수정 후 response 반환") {
-                    val article = ArticleFixture.create(articleId)
-                    coEvery { articleRepository.findById(any()) } returns article
-                    coEvery { articleRepository.save(any()) } returnsArgument 0
+                    coEvery { articleDomainService.getArticleById(any()) } returns article
+                    coEvery { articleDomainService.update(any()) } returnsArgument 0
                     // when
                     val result = service.update(articleId, request)
                     // then
@@ -112,17 +108,31 @@ class ArticleServiceTest : DescribeSpec() {
                     result.boardId shouldBe request.boardId
                     result.subject shouldBe request.subject
                     result.content shouldBe request.content
+
+                    coVerify { articleDomainService.update(any()) }
                 }
             }
 
             context("존재하지 않는 article") {
                 it("throw DataNotFoundException") {
-                    coEvery { articleRepository.findById(any()) } returns null
+                    coEvery { articleDomainService.getArticleById(any()) } returns null
                     // when
                     shouldThrow<DataNotFoundException> {
                         service.update(articleId, request)
                     }
-                    coVerify(exactly = 0) { articleRepository.save(any()) }
+                    coVerify(exactly = 0) { articleDomainService.update(any()) }
+                }
+            }
+
+            context("작성자와 다른 article") {
+                it("throw ForbiddenException") {
+                    user = User.withUsername("otherusername").password("user").roles(USER.value).build()
+                    coEvery { articleDomainService.getArticleById(any()) } returns article
+                    coEvery { articleDomainService.update(any()) } throws AccessDeniedException("")
+                    // when
+                    shouldThrow<AccessDeniedException> {
+                        service.update(articleId, request)
+                    }
                 }
             }
         }
