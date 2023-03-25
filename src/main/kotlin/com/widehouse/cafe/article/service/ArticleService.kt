@@ -1,6 +1,5 @@
 package com.widehouse.cafe.article.service
 
-import com.widehouse.cafe.article.ArticleRepository
 import com.widehouse.cafe.article.dto.ArticleRequest
 import com.widehouse.cafe.article.dto.ArticleResponse
 import com.widehouse.cafe.article.model.Article
@@ -15,7 +14,6 @@ import java.time.LocalDateTime
 @Service
 class ArticleService(
     private val articleDomainService: ArticleDomainService,
-    private val articleRepository: ArticleRepository,
     private val boardRepository: BoardRepository,
     private val sequenceService: SequenceService
 ) {
@@ -32,15 +30,12 @@ class ArticleService(
 
     @Transactional
     suspend fun update(articleId: Long, request: ArticleRequest): ArticleResponse {
-        // TODO : user
-        val article = articleRepository.findById(articleId)
-            ?.let { Article(it.id, it.cafeUrl, request.boardId, "username", request.subject, request.content, it.createdAt) }
+        val article = articleDomainService.getArticleById(articleId)
+            ?.let { Article(it.id, it.cafeUrl, request.boardId, it.username, request.subject, request.content, it.createdAt) }
             ?: throw DataNotFoundException("$articleId not found exception")
 
-        return articleRepository.save(article)
-            .run {
-                ArticleResponse.from(this)
-            }
+        return articleDomainService.update(article)
+            .run { ArticleResponse.from(this) }
     }
 
     @Transactional
