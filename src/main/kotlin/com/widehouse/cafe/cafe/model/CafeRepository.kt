@@ -1,6 +1,5 @@
 package com.widehouse.cafe.cafe.model
 
-import com.widehouse.cafe.cafe.model.Cafe
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
