@@ -1,43 +1,45 @@
 package com.widehouse.cafe.cafe.service
 
-import com.widehouse.cafe.cafe.CafeCoroutineRepository
+import com.widehouse.cafe.cafe.model.CafeCoroutineRepository
 import com.widehouse.cafe.cafe.model.CafeFixture
-import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.StringSpec
-import io.mockk.MockKAnnotations
-import io.mockk.clearAllMocks
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 
 class CafeDomainServiceTest : StringSpec() {
-    private lateinit var service: CafeDomainService
+    private val cafeRepository = mockk<CafeCoroutineRepository>()
 
-    @MockK
-    private lateinit var cafeRepository: CafeCoroutineRepository
+    private val service = CafeDomainService(cafeRepository)
 
     init {
-        isolationMode = IsolationMode.InstancePerLeaf
         coroutineTestScope = true
 
-        val article = CafeFixture.create()
+        val cafe = CafeFixture.create()
 
-        beforeEach {
-            MockKAnnotations.init(this)
-
-            service = CafeDomainService(cafeRepository)
+        "get cafe by url" {
+            coEvery { cafeRepository.findById(any()) } returns cafe
+            // when
+            val result = service.getCafeByUrl("test")
+            // then
+            result shouldBe cafe
         }
 
-        afterEach {
-            clearAllMocks()
-        }
-
-        "create Article" {
+        "create Cafe" {
             coEvery { cafeRepository.save(any()) } returnsArgument 0
             // when
-            service.create(article)
+            service.create(cafe)
             // then
-            coVerify { cafeRepository.save(article) }
+            coVerify { cafeRepository.save(cafe) }
+        }
+
+        "update Cafe" {
+            coEvery { cafeRepository.save(any()) } returnsArgument 0
+            // when
+            service.update(cafe)
+            // then
+            coVerify { cafeRepository.save(cafe) }
         }
     }
 }

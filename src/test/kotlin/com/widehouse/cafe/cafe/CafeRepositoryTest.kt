@@ -2,6 +2,7 @@ package com.widehouse.cafe.cafe
 
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture
+import com.widehouse.cafe.cafe.model.CafeRepository
 import com.widehouse.cafe.cafe.model.Category
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
