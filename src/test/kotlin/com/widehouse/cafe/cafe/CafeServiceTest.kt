@@ -3,9 +3,13 @@ package com.widehouse.cafe.cafe
 import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture
+import com.widehouse.cafe.cafe.model.CafeRepository
 import com.widehouse.cafe.cafe.model.Category
+import com.widehouse.cafe.cafe.model.CategoryRepository
 import com.widehouse.cafe.cafe.service.CafeDomainService
+import com.widehouse.cafe.cafe.service.CafeService
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -42,6 +46,7 @@ class CafeServiceTest : DescribeSpec() {
 
             cafe = CafeFixture.create()
             every { cafeRepository.findByUrl(any()) } returns Mono.just(cafe)
+            coEvery { cafeDomainService.getCafeByUrl(any()) } returns cafe
         }
 
         afterEach {
@@ -117,30 +122,22 @@ class CafeServiceTest : DescribeSpec() {
                 val category = Category(request.categoryId, "")
                 every { categoryRepository.findById(ofType(Long::class)) } returns Mono.just(category)
                 val updatedCafe = Cafe("test", request.name, request.description, Category(request.categoryId, ""))
-                every { cafeRepository.save(any()) } returns Mono.just(updatedCafe)
+                coEvery { cafeDomainService.update(any()) } returnsArgument 0
                 // when
                 val result = service.update(request)
                 // then
-                result
-                    .`as`(StepVerifier::create)
-                    .assertNext {
-                        it.url shouldBe cafe.url
-                        it.name shouldBe updatedCafe.name
-                        it.description shouldBe updatedCafe.description
-                    }
-                    .verifyComplete()
+                result.url shouldBe cafe.url
+                result.name shouldBe updatedCafe.name
+                result.description shouldBe updatedCafe.description
             }
 
             it("없는 카페이면 DataNotFoundException") {
                 // given
-                every { cafeRepository.findByUrl(any()) } returns Mono.empty()
+                coEvery { cafeDomainService.getCafeByUrl(any()) } returns null
                 // when
-                val result = service.update(request)
-                // then
-                result
-                    .`as`(StepVerifier::create)
-                    .expectError(DataNotFoundException::class.java)
-                    .verify()
+                shouldThrow<DataNotFoundException> {
+                    service.update(request)
+                }
             }
         }
 

@@ -3,6 +3,7 @@ package com.widehouse.cafe.cafe
 import com.ninjasquad.springmockk.MockkBean
 import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.dto.CafeResponseFixture
+import com.widehouse.cafe.cafe.service.CafeService
 import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.mockk.coEvery
@@ -82,12 +83,13 @@ class CafeControllerTest(
         }
 
         describe("put /cafes") {
-            it("존재하는 카페일 때, 카페를 수정하고 200을 반환") {
+            it("존재하는 카페일 때, 카페를 수정") {
                 val response = CafeResponseFixture.create()
-                every { cafeService.update(any()) } returns Mono.just(response)
+                coEvery { cafeService.update(any()) } returns response
 
                 val request = CafeRequestFixture.create()
-                webClient.put()
+                webClient
+                    .put()
                     .uri("/cafes")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
@@ -99,7 +101,7 @@ class CafeControllerTest(
             }
 
             it("존재하지 않는 카페 url 일때, 404 반환") {
-                every { cafeService.update(any()) } returns Mono.error(DataNotFoundException(""))
+                coEvery { cafeService.update(any()) } throws DataNotFoundException("")
 
                 val request = CafeRequestFixture.create()
                 webClient.put()
