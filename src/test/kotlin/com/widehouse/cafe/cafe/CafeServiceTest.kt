@@ -14,10 +14,13 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import io.mockk.verify
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -145,26 +148,23 @@ class CafeServiceTest : DescribeSpec() {
             val url = "test"
             it("카페 정보 삭제") {
                 // given
-                every { cafeRepository.delete(any()) } returns Mono.empty()
+                coEvery { cafeDomainService.getCafeByUrl(any()) } returns cafe
+                coEvery { cafeDomainService.delete(any()) } just Runs
                 // when
-                val result = service.delete(url)
+                service.delete(url)
                 // then
-                result
-                    .`as`(StepVerifier::create)
-                    .verifyComplete()
+                coVerify { cafeDomainService.delete(cafe) }
             }
 
             it("없는 카페이면 DataNotFoundException") {
                 // given
-                every { cafeRepository.findByUrl(any()) } returns Mono.empty()
+                coEvery { cafeDomainService.getCafeByUrl(any()) } returns null
                 // when
-                val result = service.delete(url)
+                shouldThrow<DataNotFoundException> {
+                    service.delete(url)
+                }
                 // then
-                result
-                    .`as`(StepVerifier::create)
-                    .expectError(DataNotFoundException::class.java)
-                    .verify()
-                verify(exactly = 0) { cafeRepository.delete(any()) }
+                coVerify(exactly = 0) { cafeDomainService.delete(any()) }
             }
         }
     }

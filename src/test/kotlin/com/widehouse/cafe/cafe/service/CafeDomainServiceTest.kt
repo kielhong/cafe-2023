@@ -4,8 +4,10 @@ import com.widehouse.cafe.cafe.model.CafeCoroutineRepository
 import com.widehouse.cafe.cafe.model.CafeFixture
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 
 class CafeDomainServiceTest : StringSpec() {
@@ -40,6 +42,14 @@ class CafeDomainServiceTest : StringSpec() {
             service.update(cafe)
             // then
             coVerify { cafeRepository.save(cafe) }
+        }
+
+        "delete Cafe" {
+            coEvery { cafeRepository.delete(any()) } just Runs
+            // when
+            service.delete(cafe)
+            // then
+            coVerify { cafeRepository.delete(cafe) }
         }
     }
 }

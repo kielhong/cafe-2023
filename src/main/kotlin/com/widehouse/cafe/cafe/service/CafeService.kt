@@ -55,9 +55,9 @@ class CafeService(
         return CafeResponse.from(updatedCafe)
     }
 
-    fun delete(url: String): Mono<Void> {
-        return cafeRepository.findByUrl(url)
-            .switchIfEmpty(Mono.error(DataNotFoundException("$url not found")))
-            .flatMap { cafeRepository.delete(it) }
+    suspend fun delete(url: String) {
+        val cafe = cafeDomainService.getCafeByUrl(url)
+            ?: throw DataNotFoundException("$url not found")
+        cafeDomainService.delete(cafe)
     }
 }

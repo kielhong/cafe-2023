@@ -19,4 +19,8 @@ class CafeDomainService(
     suspend fun update(cafe: Cafe): Cafe {
         return cafeRepository.save(cafe)
     }
+
+    suspend fun delete(cafe: Cafe) {
+        cafeRepository.delete(cafe)
+    }
 }
