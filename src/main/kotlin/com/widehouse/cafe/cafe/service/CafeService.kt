@@ -45,12 +45,11 @@ class CafeService(
         val category = categoryRepository.findById(request.categoryId).block()!!
 
         val updatedCafe = cafeDomainService.update(
-            Cafe(
-                cafe.url,
-                request.name,
-                request.description,
-                category
-            )
+            cafe.apply {
+                this.name = request.name
+                this.description = request.description
+                this.category = category
+            }
         )
         return CafeResponse.from(updatedCafe)
     }

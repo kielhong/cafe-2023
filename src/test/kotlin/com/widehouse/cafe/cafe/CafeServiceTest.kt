@@ -22,6 +22,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.verify
+import org.springframework.test.util.ReflectionTestUtils
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -118,20 +119,22 @@ class CafeServiceTest : DescribeSpec() {
         }
 
         describe("update 카페") {
-            val request = CafeRequestFixture.create()
+            val request = CafeRequestFixture.create().apply {
+                ReflectionTestUtils.setField(this, "name", "update name")
+                ReflectionTestUtils.setField(this, "description", "update description")
+            }
 
             it("카페 정보 변경하고 변경된 카페 반환") {
                 // given
                 val category = Category(request.categoryId, "")
                 every { categoryRepository.findById(ofType(Long::class)) } returns Mono.just(category)
-                val updatedCafe = Cafe("test", request.name, request.description, Category(request.categoryId, ""))
                 coEvery { cafeDomainService.update(any()) } returnsArgument 0
                 // when
                 val result = service.update(request)
                 // then
                 result.url shouldBe cafe.url
-                result.name shouldBe updatedCafe.name
-                result.description shouldBe updatedCafe.description
+                result.name shouldBe request.name
+                result.description shouldBe request.description
             }
 
             it("없는 카페이면 DataNotFoundException") {
