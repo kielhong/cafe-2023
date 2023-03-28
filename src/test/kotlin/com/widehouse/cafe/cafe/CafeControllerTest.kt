@@ -9,13 +9,11 @@ import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.just
+import kotlinx.coroutines.flow.asFlow
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @WebFluxTest(CafeController::class)
 class CafeControllerTest(
@@ -27,7 +25,7 @@ class CafeControllerTest(
         describe("get /cafes/{url}") {
             val url = "test"
             val response = CafeResponseFixture.create()
-            every { cafeService.getCafe(any()) } returns Mono.just(response)
+            coEvery { cafeService.getCafe(any()) } returns response
 
             it("개별 카페를 반환, 200 OK") {
                 webClient
@@ -43,7 +41,7 @@ class CafeControllerTest(
 
             it("존재 하지 않는 카페, 404 Not Found") {
                 // given
-                every { cafeService.getCafe(any()) } returns Mono.error { DataNotFoundException("$url not found") }
+                coEvery { cafeService.getCafe(any()) } throws DataNotFoundException("$url not found")
                 // then
                 webClient.get()
                     .uri("/cafes/{url}", url)
@@ -55,7 +53,7 @@ class CafeControllerTest(
         describe("get /cafes by categoryId") {
             val categoryId = 1L
             val list = (1..2).map { CafeResponseFixture.from(it) }
-            every { cafeService.getCafesByCategoryId(any()) } returns Flux.fromIterable(list)
+            coEvery { cafeService.getCafesByCategoryId(any()) } returns list.asFlow()
 
             it("개별 카페를 반환, 200 OK") {
                 webClient.get()

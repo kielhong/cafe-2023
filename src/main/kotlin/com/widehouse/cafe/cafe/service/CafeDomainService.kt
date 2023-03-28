@@ -1,12 +1,12 @@
 package com.widehouse.cafe.cafe.service
 
 import com.widehouse.cafe.cafe.model.Cafe
-import com.widehouse.cafe.cafe.model.CafeCoroutineRepository
+import com.widehouse.cafe.cafe.model.CafeRepository
 import org.springframework.stereotype.Service
 
 @Service
 class CafeDomainService(
-    private val cafeRepository: CafeCoroutineRepository
+    private val cafeRepository: CafeRepository
 ) {
     suspend fun getCafeByUrl(url: String): Cafe? {
         return cafeRepository.findById(url)

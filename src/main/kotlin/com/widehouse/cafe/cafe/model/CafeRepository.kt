@@ -1,10 +1,9 @@
 package com.widehouse.cafe.cafe.model
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
-interface CafeRepository : ReactiveMongoRepository<Cafe, String> {
-    fun findByUrl(url: String): Mono<Cafe>
-    fun findByCategoryId(categoryId: Long): Flux<Cafe>
+interface CafeRepository : CoroutineCrudRepository<Cafe, String> {
+    suspend fun findByUrl(url: String): Cafe?
+    fun findByCategoryId(categoryId: Long): Flow<Cafe>
 }
