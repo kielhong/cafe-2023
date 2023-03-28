@@ -1,7 +1,7 @@
 package com.widehouse.cafe.cafe.service
 
-import com.widehouse.cafe.cafe.model.CafeCoroutineRepository
 import com.widehouse.cafe.cafe.model.CafeFixture
+import com.widehouse.cafe.cafe.model.CafeRepository
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -11,7 +11,7 @@ import io.mockk.just
 import io.mockk.mockk
 
 class CafeDomainServiceTest : StringSpec() {
-    private val cafeRepository = mockk<CafeCoroutineRepository>()
+    private val cafeRepository = mockk<CafeRepository>()
 
     private val service = CafeDomainService(cafeRepository)
 

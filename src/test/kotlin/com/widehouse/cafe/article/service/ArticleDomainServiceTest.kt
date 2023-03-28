@@ -1,7 +1,7 @@
 package com.widehouse.cafe.article.service
 
 import com.widehouse.cafe.article.ArticleFixture
-import com.widehouse.cafe.article.ArticleRepository
+import com.widehouse.cafe.article.model.ArticleRepository
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

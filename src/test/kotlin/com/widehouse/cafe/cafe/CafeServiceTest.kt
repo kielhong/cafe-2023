@@ -12,44 +12,35 @@ import com.widehouse.cafe.common.exception.DataNotFoundException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
-import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.just
-import io.mockk.verify
+import io.mockk.mockk
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import org.springframework.test.util.ReflectionTestUtils
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.test.StepVerifier
 
 class CafeServiceTest : DescribeSpec() {
-    private lateinit var service: CafeService
+    private val cafeDomainService = mockk<CafeDomainService>()
+    private val cafeRepository = mockk<CafeRepository>()
+    private val categoryRepository = mockk<CategoryRepository>()
 
-    @MockK
-    private lateinit var cafeDomainService: CafeDomainService
-
-    @MockK
-    private lateinit var cafeRepository: CafeRepository
-
-    @MockK
-    private lateinit var categoryRepository: CategoryRepository
+    private val service = CafeService(cafeDomainService, cafeRepository, categoryRepository)
 
     init {
         isolationMode = IsolationMode.InstancePerLeaf
-        MockKAnnotations.init(this)
 
         lateinit var cafe: Cafe
 
         beforeEach {
-            service = CafeService(cafeDomainService, cafeRepository, categoryRepository)
-
             cafe = CafeFixture.create()
-            every { cafeRepository.findByUrl(any()) } returns Mono.just(cafe)
+            coEvery { cafeRepository.findByUrl(any()) } returns cafe
             coEvery { cafeDomainService.getCafeByUrl(any()) } returns cafe
         }
 
@@ -62,25 +53,17 @@ class CafeServiceTest : DescribeSpec() {
                 // when
                 val result = service.getCafe("test")
                 // then
-                result
-                    .`as`(StepVerifier::create)
-                    .assertNext {
-                        it.url shouldBe cafe.url
-                        it.name shouldBe cafe.name
-                        it.description shouldBe cafe.description
-                    }
-                    .verifyComplete()
+                result.url shouldBe cafe.url
+                result.name shouldBe cafe.name
+                result.description shouldBe cafe.description
             }
             it("카페가 없으면 DataNotFoundException") {
                 // given
-                every { cafeRepository.findByUrl(any()) } returns Mono.empty()
+                coEvery { cafeRepository.findByUrl(any()) } returns null
                 // when
-                val result = service.getCafe("test")
-                // then
-                result
-                    .`as`(StepVerifier::create)
-                    .expectError(DataNotFoundException::class.java)
-                    .verify()
+                shouldThrow<DataNotFoundException> {
+                    service.getCafe("test")
+                }
             }
         }
 
@@ -89,12 +72,11 @@ class CafeServiceTest : DescribeSpec() {
             val list = (1..2).map { CafeFixture.from(it, category) }
 
             it("카테고리별 카페를 반환") {
-                every { cafeRepository.findByCategoryId(any()) } returns Flux.fromIterable(list)
-
-                service.getCafesByCategoryId(category.id)
-                    .`as`(StepVerifier::create)
-                    .thenConsumeWhile { it.category.id == category.id }
-                    .verifyComplete()
+                coEvery { cafeRepository.findByCategoryId(any()) } returns list.asFlow()
+                // when
+                val result = service.getCafesByCategoryId(category.id)
+                // then
+                result.toList().forAll { it.category.id shouldBe category.id }
             }
         }
 

@@ -1,7 +1,7 @@
 package com.widehouse.cafe.article.service
 
-import com.widehouse.cafe.article.ArticleRepository
 import com.widehouse.cafe.article.model.Article
+import com.widehouse.cafe.article.model.ArticleRepository
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 

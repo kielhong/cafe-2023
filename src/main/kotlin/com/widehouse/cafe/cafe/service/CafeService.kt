@@ -6,10 +6,10 @@ import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeRepository
 import com.widehouse.cafe.cafe.model.CategoryRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @Service
 @Transactional
@@ -19,14 +19,14 @@ class CafeService(
     private val categoryRepository: CategoryRepository
 ) {
     @Transactional(readOnly = true)
-    fun getCafe(url: String): Mono<CafeResponse> {
-        return cafeRepository.findByUrl(url)
-            .map { CafeResponse.from(it) }
-            .switchIfEmpty(Mono.error(DataNotFoundException("$url not found")))
+    suspend fun getCafe(url: String): CafeResponse {
+        val cafe = cafeRepository.findByUrl(url)
+            ?: throw DataNotFoundException("$url not found")
+        return CafeResponse.from(cafe)
     }
 
     @Transactional(readOnly = true)
-    fun getCafesByCategoryId(categoryId: Long): Flux<CafeResponse> {
+    fun getCafesByCategoryId(categoryId: Long): Flow<CafeResponse> {
         return cafeRepository.findByCategoryId(categoryId)
             .map { CafeResponse.from(it) }
     }

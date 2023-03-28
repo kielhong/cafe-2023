@@ -5,10 +5,11 @@ import com.widehouse.cafe.cafe.model.CafeFixture
 import com.widehouse.cafe.cafe.model.CafeRepository
 import com.widehouse.cafe.cafe.model.Category
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.toList
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import reactor.test.StepVerifier
 
 @DataMongoTest
 class CafeRepositoryTest(
@@ -21,12 +22,9 @@ class CafeRepositoryTest(
             val cafe = Cafe("test", "test", "desc", Category(1L, ""))
             mongoTemplate.insert(cafe, "cafe").block()
             // when
-            val result = cafeRepository.findByUrl(cafe.url)
+            val result = cafeRepository.findByUrl(cafe.url)!!
             // then
-            result
-                .`as`(StepVerifier::create)
-                .assertNext { it.url shouldBe cafe.url }
-                .verifyComplete()
+            result.url shouldBe cafe.url
         }
 
         "findByCategoryId" {
@@ -36,10 +34,7 @@ class CafeRepositoryTest(
             // when
             val result = cafeRepository.findByCategoryId(category.id)
             // then
-            result
-                .`as`(StepVerifier::create)
-                .thenConsumeWhile { it.category.id == category.id }
-                .verifyComplete()
+            result.toList().forAll { it.category.id shouldBe category.id }
         }
     }
 }
