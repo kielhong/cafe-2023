@@ -41,7 +41,7 @@ class CafeController(
     }
 
     @DeleteMapping("{url}")
-    fun delete(@PathVariable url: String): Mono<Void> {
-        return cafeService.delete(url)
+    suspend fun delete(@PathVariable url: String) {
+        cafeService.delete(url)
     }
 }
