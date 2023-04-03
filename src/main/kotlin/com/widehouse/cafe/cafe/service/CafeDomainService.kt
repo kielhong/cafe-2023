@@ -2,6 +2,7 @@ package com.widehouse.cafe.cafe.service
 
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeRepository
+import kotlinx.coroutines.flow.Flow
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,6 +11,10 @@ class CafeDomainService(
 ) {
     suspend fun getCafeByUrl(url: String): Cafe? {
         return cafeRepository.findById(url)
+    }
+
+    fun getCafesByCategoryId(categoryId: Long): Flow<Cafe> {
+        return cafeRepository.findByCategoryId(categoryId)
     }
 
     suspend fun create(cafe: Cafe): Cafe {
