@@ -3,7 +3,6 @@ package com.widehouse.cafe.cafe.service
 import com.widehouse.cafe.cafe.dto.CafeRequest
 import com.widehouse.cafe.cafe.dto.CafeResponse
 import com.widehouse.cafe.cafe.model.Cafe
-import com.widehouse.cafe.cafe.model.CafeRepository
 import com.widehouse.cafe.cafe.model.CategoryRepository
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import kotlinx.coroutines.flow.Flow
@@ -15,19 +14,18 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CafeService(
     private val cafeDomainService: CafeDomainService,
-    private val cafeRepository: CafeRepository,
     private val categoryRepository: CategoryRepository
 ) {
     @Transactional(readOnly = true)
     suspend fun getCafe(url: String): CafeResponse {
-        val cafe = cafeRepository.findByUrl(url)
+        val cafe = cafeDomainService.getCafeByUrl(url)
             ?: throw DataNotFoundException("$url not found")
         return CafeResponse.from(cafe)
     }
 
     @Transactional(readOnly = true)
     fun getCafesByCategoryId(categoryId: Long): Flow<CafeResponse> {
-        return cafeRepository.findByCategoryId(categoryId)
+        return cafeDomainService.getCafesByCategoryId(categoryId)
             .map { CafeResponse.from(it) }
     }
 

@@ -3,7 +3,6 @@ package com.widehouse.cafe.cafe
 import com.widehouse.cafe.cafe.dto.CafeRequestFixture
 import com.widehouse.cafe.cafe.model.Cafe
 import com.widehouse.cafe.cafe.model.CafeFixture
-import com.widehouse.cafe.cafe.model.CafeRepository
 import com.widehouse.cafe.cafe.model.Category
 import com.widehouse.cafe.cafe.model.CategoryRepository
 import com.widehouse.cafe.cafe.service.CafeDomainService
@@ -28,19 +27,16 @@ import reactor.core.publisher.Mono
 
 class CafeServiceTest : DescribeSpec() {
     private val cafeDomainService = mockk<CafeDomainService>()
-    private val cafeRepository = mockk<CafeRepository>()
     private val categoryRepository = mockk<CategoryRepository>()
 
-    private val service = CafeService(cafeDomainService, cafeRepository, categoryRepository)
+    private val service = CafeService(cafeDomainService, categoryRepository)
 
     init {
         isolationMode = IsolationMode.InstancePerLeaf
 
-        lateinit var cafe: Cafe
+        val cafe = CafeFixture.create()
 
         beforeEach {
-            cafe = CafeFixture.create()
-            coEvery { cafeRepository.findByUrl(any()) } returns cafe
             coEvery { cafeDomainService.getCafeByUrl(any()) } returns cafe
         }
 
@@ -56,10 +52,13 @@ class CafeServiceTest : DescribeSpec() {
                 result.url shouldBe cafe.url
                 result.name shouldBe cafe.name
                 result.description shouldBe cafe.description
+
+                coVerify { cafeDomainService.getCafeByUrl("test") }
             }
+
             it("카페가 없으면 DataNotFoundException") {
                 // given
-                coEvery { cafeRepository.findByUrl(any()) } returns null
+                coEvery { cafeDomainService.getCafeByUrl(any()) } returns null
                 // when
                 shouldThrow<DataNotFoundException> {
                     service.getCafe("test")
@@ -72,7 +71,7 @@ class CafeServiceTest : DescribeSpec() {
             val list = (1..2).map { CafeFixture.from(it, category) }
 
             it("카테고리별 카페를 반환") {
-                coEvery { cafeRepository.findByCategoryId(any()) } returns list.asFlow()
+                coEvery { cafeDomainService.getCafesByCategoryId(any()) } returns list.asFlow()
                 // when
                 val result = service.getCafesByCategoryId(category.id)
                 // then
