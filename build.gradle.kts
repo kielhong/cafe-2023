@@ -4,6 +4,7 @@ import com.widehouse.cafe.Versions.kotestVersion
 import com.widehouse.cafe.Versions.kotlinCoroutineVersion
 import com.widehouse.cafe.Versions.mockkVersion
 import com.widehouse.cafe.Versions.projectReactorVersion
+import com.widehouse.cafe.Versions.queryDslVersion
 import com.widehouse.cafe.Versions.springMockkVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
