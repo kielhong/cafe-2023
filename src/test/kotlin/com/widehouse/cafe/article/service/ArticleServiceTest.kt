@@ -7,7 +7,7 @@ import com.widehouse.cafe.board.BoardRepository
 import com.widehouse.cafe.board.model.BoardFixture
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import com.widehouse.cafe.common.sequence.SequenceService
-import com.widehouse.cafe.user.Role.USER
+import com.widehouse.cafe.user.model.Role.USER
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec

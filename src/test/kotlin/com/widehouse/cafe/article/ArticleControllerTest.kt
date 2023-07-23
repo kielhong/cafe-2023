@@ -8,7 +8,7 @@ import com.widehouse.cafe.article.service.ArticleService
 import com.widehouse.cafe.common.SecurityControllerTest
 import com.widehouse.cafe.common.exception.DataNotFoundException
 import com.widehouse.cafe.common.exception.ForbiddenException
-import com.widehouse.cafe.user.Role
+import com.widehouse.cafe.user.model.Role
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify

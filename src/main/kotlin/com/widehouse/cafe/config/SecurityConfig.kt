@@ -1,6 +1,6 @@
 package com.widehouse.cafe.config
 
-import com.widehouse.cafe.user.Role
+import com.widehouse.cafe.user.model.Role
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
